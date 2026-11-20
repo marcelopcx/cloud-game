@@ -1,0 +1,26 @@
+id: bloodyroar2
+version: "0.7.1"
+kind: native
+# 4:3 (PS1); Xvfb + captura + mouse usan este tamaño aunque STATION_SIZE sea 16:9.
+size: "960x720"
+command: ["/opt/bloodyroar2/run-game.sh"]
+workdir: /opt/bloodyroar2
+# Memory cards (memcard_dir = "saves" en game_us.toml).
+saves:
+  - /opt/bloodyroar2/saves
+env:
+  # El runtime usa SDL3 estático: SDL_VIDEO_DRIVER / SDL_AUDIO_DRIVER.
+  SDL_VIDEO_DRIVER: x11
+  SDL_AUDIO_DRIVER: pulseaudio
+  SDL_VIDEO_WINDOW_POS: "0,0"
+  SDL_VIDEO_CENTERED: "0"
+  # Sin SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS: psxrecomp ya lo fija con SDL_SetHint
+  # y la variable de entorno haría fallar ese hint (como en dusklight).
+needs:
+  display: true
+  audio: true
+  gamepad: 2
+  keyboard: true
+  mouse: false
+audio:
+  fallbackArgs: []

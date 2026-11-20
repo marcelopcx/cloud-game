@@ -1,0 +1,22 @@
+.game-player__stage--loading {
+    min-height: 240px;
+}
+
+/* Aviso fijo abajo mientras se espera la estación (la barra de arriba se oculta sin hover). */
+.game-player__notice {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 24px;
+    z-index: 11;
+    margin: 0 auto;
+    max-width: 480px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.6);
+    font-family: var(--base);
+    font-size: 14px;
+    line-height: 1.4;
+    text-align: center;
+    color: var(--white, #ffffff);
+}

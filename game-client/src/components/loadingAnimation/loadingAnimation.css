@@ -1,0 +1,28 @@
+.loading-animation {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-dark, #111111);
+    overflow: hidden;
+}
+
+/*
+ * La animación es 16:9 (1920x1080): se dimensiona como `object-fit: cover`
+ * para llenar todo el viewport recortando lo que sobre en los bordes.
+ */
+.loading-animation__player {
+    flex: none;
+    width: max(100vw, 100dvh * 16 / 9);
+    height: max(100dvh, 100vw * 9 / 16);
+}
+
+/* En vertical el recorte se comería el control: se ajusta al ancho. */
+@media (orientation: portrait) {
+    .loading-animation__player {
+        width: 100vw;
+        height: calc(100vw * 9 / 16);
+    }
+}

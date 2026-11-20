@@ -1,0 +1,284 @@
+.game-modal {
+    --gm-ink: #0b0d12;
+    --gm-muted: rgba(255, 255, 255, 0.56);
+    --gm-line: rgba(255, 255, 255, 0.1);
+    --gm-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --gm-ease-reveal: cubic-bezier(0.65, 0, 0.35, 1);
+    --gm-reveal-delay: 0.15s;
+    --gm-reveal-duration: 1s;
+}
+
+.game-modal-stage {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+/* ---------- Portada: se revela de arriba abajo ---------- */
+
+.game-modal-art {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    clip-path: inset(0 0 0 0);
+}
+
+.game-modal-art::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(to top, var(--gm-ink) 0%, rgba(11, 13, 18, 0.97) 24%, rgba(11, 13, 18, 0.72) 44%, rgba(11, 13, 18, 0.2) 66%, rgba(11, 13, 18, 0) 82%),
+        linear-gradient(to right, rgba(11, 13, 18, 0.85) 0%, rgba(11, 13, 18, 0.35) 38%, rgba(11, 13, 18, 0) 62%),
+        linear-gradient(to bottom, rgba(11, 13, 18, 0.55) 0%, rgba(11, 13, 18, 0) 22%);
+}
+
+.game-modal-art-image {
+    position: absolute;
+    inset: 0;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: 75% 30%;
+}
+
+.modal.is-open .game-modal-art {
+    animation: game-modal-stream-in var(--gm-reveal-duration) var(--gm-ease-reveal) var(--gm-reveal-delay) both;
+}
+
+.modal.is-open .game-modal-art-image {
+    animation: game-modal-settle 1.6s var(--gm-ease-out) var(--gm-reveal-delay) both;
+}
+
+/* ---------- Contenido ---------- */
+
+.game-modal-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-top: auto;
+    padding: 88px 72px 40px;
+    color: var(--white, #ffffff);
+    font-family: var(--base);
+}
+
+.game-modal .game-modal-title {
+    margin: 0;
+    overflow: hidden;
+    padding-bottom: 0.06em;
+    font-family: var(--brand);
+    font-size: clamp(44px, 6.6vw, 104px);
+    font-weight: 850;
+    line-height: 0.92;
+    letter-spacing: -0.035em;
+    text-transform: uppercase;
+    color: var(--white, #ffffff);
+    text-wrap: balance;
+}
+
+.game-modal .game-modal-title--long {
+    font-size: clamp(36px, 4.6vw, 72px);
+    line-height: 0.96;
+}
+
+.game-modal-title-inner {
+    display: block;
+}
+
+.modal.is-open .game-modal-title-inner {
+    animation: game-modal-title-in 0.9s var(--gm-ease-out) 0.4s both;
+}
+
+.game-modal-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.game-modal-main {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+.game-modal .game-modal-description {
+    max-width: 58ch;
+    margin: 0;
+    font-family: var(--base);
+    font-size: 16px;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.game-modal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 20px 24px;
+}
+
+/* ---------- Ficha técnica ---------- */
+
+.game-modal-specs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px 56px;
+    margin: 0;
+    padding-top: 24px;
+    border-top: 1px solid var(--gm-line);
+}
+
+.game-modal-spec {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* Controles anclado a la esquina inferior derecha de la franja. */
+.game-modal .game-modal-spec--controls {
+    margin-left: auto;
+}
+
+.game-modal-spec dt {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--gm-muted);
+}
+
+.game-modal-spec dd {
+    margin: 0;
+}
+
+.game-modal-platforms {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.game-modal-platform {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.game-modal-platform img {
+    height: 20px;
+    width: auto;
+}
+
+/* ---------- Entrada escalonada ---------- */
+
+.modal.is-open .game-modal-reveal {
+    animation: game-modal-rise 0.8s var(--gm-ease-out) both;
+    animation-delay: calc(0.5s + var(--reveal-index, 0) * 90ms);
+}
+
+@keyframes game-modal-stream-in {
+    from { clip-path: inset(0 0 100% 0); }
+    to { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes game-modal-settle {
+    from { filter: brightness(1.6) saturate(0.4); }
+    to { filter: none; }
+}
+
+@keyframes game-modal-title-in {
+    from { transform: translateY(105%); }
+    to { transform: none; }
+}
+
+@keyframes game-modal-rise {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 900px) {
+    .game-modal-content {
+        padding: 96px 32px 32px;
+    }
+
+    .game-modal-specs {
+        gap: 16px 40px;
+    }
+}
+
+@media (max-width: 720px) {
+    .game-modal-stage {
+        flex: none;
+        min-height: min(640px, 94dvh);
+    }
+
+    .game-modal-art-image {
+        background-position: 70% top;
+    }
+
+    .game-modal-art::after {
+        background:
+            linear-gradient(to top, var(--gm-ink) 0%, rgba(11, 13, 18, 0.96) 45%, rgba(11, 13, 18, 0.3) 75%, rgba(11, 13, 18, 0.5) 100%);
+    }
+
+    .game-modal-content {
+        gap: 22px;
+        padding: 180px 20px 28px;
+    }
+
+    .game-modal .game-modal-description {
+        font-size: 15px;
+    }
+
+    .game-modal .game-modal-play {
+        width: 100%;
+    }
+
+    .game-modal-specs {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 20px;
+    }
+
+    .game-modal-spec {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .game-modal .game-modal-spec--controls {
+        margin-left: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .modal.is-open .game-modal-art,
+    .modal.is-open .game-modal-art-image,
+    .modal.is-open .game-modal-title-inner,
+    .modal.is-open .game-modal-reveal {
+        animation: none;
+    }
+}

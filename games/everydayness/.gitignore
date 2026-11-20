@@ -1,0 +1,3 @@
+# Build del juego bajado de itch.io (no versionar: es de sus autores)
+*.zip
+*.tar.bz2

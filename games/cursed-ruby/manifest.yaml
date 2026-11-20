@@ -1,0 +1,14 @@
+id: cursed-ruby
+version: "1.0"
+kind: native
+command: ["/opt/cursed-ruby/run-game.sh"]
+workdir: /opt/cursed-ruby
+env: {}
+needs:
+  display: true
+  audio: true
+  gamepad: 1
+  keyboard: true
+  mouse: true
+audio:
+  fallbackArgs: ["--audio-driver", "Dummy"]

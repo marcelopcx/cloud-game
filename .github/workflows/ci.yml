@@ -1,0 +1,119 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  game-station:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: game-station
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+          cache-dependency-path: game-station/pom.xml
+      - name: Tests
+        run: mvn -B test
+
+  game-loader:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: game-loader
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+          cache-dependency-path: game-loader/pom.xml
+      - name: Tests
+        run: mvn -B test
+
+  game-dispatcher:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: game-dispatcher
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+          cache-dependency-path: game-dispatcher/pom.xml
+      - name: Tests
+        run: mvn -B test
+
+  game-client:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: game-client
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: game-client/package-lock.json
+      - run: npm ci
+      - name: Build (tsc + vite)
+        run: npm run build
+
+  game-crud:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: game-crud
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+          cache-dependency-path: game-crud/pom.xml
+      - name: Build
+        run: mvn -B package
+
+  game-admin:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: game-admin
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: game-admin/package-lock.json
+      - run: npm ci
+      - name: Build (tsc + vite)
+        run: npm run build
+
+  game-docs:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: game-docs
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: game-docs/package-lock.json
+      - run: npm ci
+      - name: Build (sync de docs/ + astro)
+        run: npm run build

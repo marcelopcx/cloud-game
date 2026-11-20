@@ -1,0 +1,7 @@
+/* Anillo de foco del mando: mismo grosor y color que los :focus-visible del resto
+   de la app (2px turquesa), para que se lea como el mismo sistema. Se muestra
+   únicamente mientras el mando es el dispositivo de entrada activo. */
+html[data-input='gamepad'] [data-gamepad-focus] {
+    outline: 2px solid #22c2fc;
+    outline-offset: 2px;
+}

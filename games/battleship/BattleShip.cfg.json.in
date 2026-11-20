@@ -1,0 +1,13 @@
+{
+    "Window": {
+        "Width": @WIDTH@,
+        "Height": @HEIGHT@,
+        "PositionX": 0,
+        "PositionY": 0,
+        "Fullscreen": {
+            "Enabled": true,
+            "Width": @WIDTH@,
+            "Height": @HEIGHT@
+        }
+    }
+}

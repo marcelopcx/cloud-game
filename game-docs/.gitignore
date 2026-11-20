@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.astro/
+
+# Generado por scripts/sync-docs.mjs desde docs/ y los README (la fuente es el repo).
+src/content/docs/*
+!src/content/docs/index.mdx
+public/files/

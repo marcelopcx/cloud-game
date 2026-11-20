@@ -1,0 +1,143 @@
+.admins-list {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    list-style: none;
+    overflow: hidden;
+}
+
+.admins-list[aria-busy="true"] {
+    min-height: 72px;
+}
+
+.admins-list__row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+}
+
+.admins-list__row + .admins-list__row {
+    border-top: 1px solid var(--border);
+}
+
+.admins-list__avatar {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--accent-bg);
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.admins-list__info {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.admins-list__info strong {
+    overflow: hidden;
+    color: var(--text-h);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admins-list__info small {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.admins-list__actions {
+    display: flex;
+    gap: 4px;
+}
+
+.admin-form-dialog {
+    width: min(420px, calc(100% - 32px));
+}
+
+.admin-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px 24px 24px;
+}
+
+.admin-form__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.admin-form__header h2 {
+    overflow: hidden;
+    font-size: 18px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: var(--text-h);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.admin-form input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--text-h);
+    font-size: 14px;
+    font-weight: 400;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.admin-form input:focus {
+    border-color: var(--accent);
+    outline: none;
+    box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+.admin-form input:user-invalid {
+    border-color: var(--danger);
+}
+
+.admin-form small,
+.admin-form__hint {
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.admin-form__error {
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    background: var(--danger-bg);
+    color: var(--danger);
+    font-size: 13px;
+}
+
+.admin-form footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 6px;
+}
+

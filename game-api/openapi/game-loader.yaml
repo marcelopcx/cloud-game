@@ -1,0 +1,274 @@
+openapi: 3.1.0
+info:
+  title: game-loader
+  version: 1.0.0
+  description: |
+    Crea, lista y destruye contenedores de estación (una por partida) vía `docker.sock`.
+    Guía completa: `docs/game-loader/README.md`.
+
+    Todas las rutas salvo `GET /health` exigen `Authorization: Bearer <LOADER_API_TOKEN>`.
+    En `/api-docs/` no hace falta cargarlo: el proxy de game-api lo agrega en nginx.
+
+    Errores: `{ "error": { "code", "message" } }`, JSON en camelCase.
+tags:
+  - name: Sistema
+  - name: Contenedores
+security:
+  - bearer: []
+paths:
+  /health:
+    get:
+      tags: [Sistema]
+      summary: Health
+      security: []
+      responses:
+        '200':
+          description: Estado del loader y ocupación de slots.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Health' }
+  /images:
+    get:
+      tags: [Sistema]
+      summary: Imágenes disponibles
+      description: |
+        Imágenes `cloudgame/game-station-<gameId>` con label `org.cloudgame.role=game-station`.
+        Si falta un juego: `./scripts/build-station.sh <gameId>`.
+      responses:
+        '200':
+          description: Imágenes de estación construidas en el host.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/GameImage' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /containers:
+    post:
+      tags: [Contenedores]
+      summary: Crear contenedor
+      description: |
+        Arranca una estación en el primer slot libre. Esperar a `status: RUNNING`
+        (polling a `GET /containers/{id}`, ~40 s) antes de usar `stationUrl`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateContainerRequest' }
+            examples:
+              simple:
+                summary: Solo el juego
+                value: { gameId: supertuxkart }
+              conEnv:
+                summary: Con env
+                value: { gameId: supertuxkart, env: { STATION_FPS: '30', IDLE_TIMEOUT_S: '120' } }
+      responses:
+        '201':
+          description: Contenedor creado.
+          headers:
+            Location:
+              schema: { type: string, example: /containers/7f3a9c21 }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Container' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404':
+          description: '`IMAGE_NOT_FOUND`: no existe la imagen del juego.'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '409':
+          description: '`CAPACITY_EXCEEDED`: no quedan slots libres.'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '500': { $ref: '#/components/responses/DockerError' }
+        '503': { $ref: '#/components/responses/DockerUnavailable' }
+    get:
+      tags: [Contenedores]
+      summary: Listar contenedores
+      description: Solo los que tienen `org.cloudgame.managed-by=game-loader`.
+      parameters:
+        - name: gameId
+          in: query
+          schema: { type: string, example: supertuxkart }
+        - name: status
+          in: query
+          schema: { $ref: '#/components/schemas/ContainerStatus' }
+      responses:
+        '200':
+          description: Contenedores del loader.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Container' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /containers/{id}:
+    parameters:
+      - $ref: '#/components/parameters/Id'
+    get:
+      tags: [Contenedores]
+      summary: Obtener contenedor
+      responses:
+        '200':
+          description: Contenedor.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Container' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/ContainerNotFound' }
+    delete:
+      tags: [Contenedores]
+      summary: Eliminar contenedor
+      description: |
+        Idempotente: devuelve `204` aunque ya no exista. Borra también el volumen de cache
+        si `LOADER_REMOVE_CACHE=true`.
+      responses:
+        '204': { description: Eliminado (o no existía). }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /containers/{id}/logs:
+    get:
+      tags: [Contenedores]
+      summary: Logs
+      parameters:
+        - $ref: '#/components/parameters/Id'
+        - name: tail
+          in: query
+          schema: { type: integer, default: 200 }
+        - name: since
+          in: query
+          description: Instante ISO-8601; solo líneas posteriores.
+          schema: { type: string, format: date-time, example: '2026-09-28T14:00:00Z' }
+        - name: source
+          in: query
+          description: '`docker` (stdout del contenedor) o `game` (`/cache/<gameId>.log` dentro del contenedor).'
+          schema: { type: string, enum: [docker, game], default: docker }
+      responses:
+        '200':
+          description: Últimas líneas.
+          content:
+            text/plain:
+              schema: { type: string }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/ContainerNotFound' }
+  /containers/{id}/logs/stream:
+    get:
+      tags: [Contenedores]
+      summary: Logs en vivo (SSE)
+      description: |
+        `text/event-stream` con eventos `log` (una línea por evento). Se corta a los 30 min
+        o cuando el contenedor termina. En terminal:
+        `curl -N -H "Authorization: Bearer $TOKEN" $LOADER/containers/$ID/logs/stream`
+      parameters:
+        - $ref: '#/components/parameters/Id'
+        - name: tail
+          in: query
+          schema: { type: integer, default: 100 }
+      responses:
+        '200':
+          description: Stream de eventos `log`.
+          content:
+            text/event-stream:
+              schema: { type: string }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/ContainerNotFound' }
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      description: '`LOADER_API_TOKEN` del `.env` del servidor.'
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      description: '`instanceId` de 8 caracteres hex que genera el loader.'
+      schema: { type: string, pattern: '^[0-9a-f]{8}$', example: 7f3a9c21 }
+  schemas:
+    Health:
+      type: object
+      properties:
+        status: { type: string, example: UP }
+        dockerOk: { type: boolean }
+        capacity: { type: integer, example: 4 }
+        used: { type: integer, description: Incluye los `EXITED` sin borrar., example: 1 }
+    GameImage:
+      type: object
+      properties:
+        gameId: { type: string, example: supertuxkart }
+        version: { type: string, example: 1.0.0 }
+        image: { type: string, example: cloudgame/game-station-supertuxkart:latest }
+    CreateContainerRequest:
+      type: object
+      required: [gameId]
+      properties:
+        gameId:
+          type: string
+          pattern: '^[a-z0-9][a-z0-9-]{0,63}$'
+          example: supertuxkart
+        env:
+          type: object
+          description: Lista blanca; cualquier otra clave → `400 BAD_REQUEST`.
+          propertyNames:
+            enum: [STATION_SIZE, STATION_FPS, STATION_VIDEO_BITRATE, IDLE_TIMEOUT_S, SAVES_URL]
+          additionalProperties: { type: string }
+          example: { STATION_FPS: '30' }
+    ContainerStatus:
+      type: string
+      description: Salud del contenedor (no es la FSM de la estación).
+      enum: [STARTING, RUNNING, UNHEALTHY, EXITED, REMOVING]
+    Container:
+      type: object
+      properties:
+        id: { type: string, example: 7f3a9c21 }
+        containerId: { type: string, description: Id de Docker. }
+        gameId: { type: string, example: supertuxkart }
+        slot: { type: integer, example: 0 }
+        httpPort: { type: integer, example: 8200 }
+        display: { type: string, example: ':200' }
+        stationUrl:
+          type: string
+          description: '`http://<LOADER_PUBLIC_HOST>:<httpPort>`. Por nginx: `/ports/<httpPort>`.'
+          example: http://192.168.1.50:8200
+        status: { $ref: '#/components/schemas/ContainerStatus' }
+        exitCode: { type: [integer, 'null'] }
+        createdAt: { type: string, format: date-time }
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code: { type: string }
+            message: { type: string }
+  responses:
+    BadRequest:
+      description: '`BAD_REQUEST`: validación, `id` mal formado o clave de `env` no permitida.'
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Unauthorized:
+      description: '`UNAUTHORIZED`: falta el Bearer o no coincide.'
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    ContainerNotFound:
+      description: '`CONTAINER_NOT_FOUND`.'
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    DockerError:
+      description: '`DOCKER_ERROR`: excepción de Docker (el detalle va en `message`).'
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    DockerUnavailable:
+      description: '`DOCKER_UNAVAILABLE`: el socket de Docker no responde.'
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }

@@ -1,0 +1,130 @@
+/* Tema de Cloud Game para Scalar: mismos colores que game-client (src/index.css). */
+:root {
+  --brand-bg: #111111;
+  --brand-surface: #1c1c1c;
+  --brand-surface-2: #252726;
+  --brand-border: #2e303a;
+  --brand-text: #e1e1e6;
+  --brand-muted: #a0a0a8;
+  --brand-turquoise: #22c2fc;
+  --brand-turquoise-hover: #5cd3fc;
+  --brand-blue: #0066ff;
+  --brand-header-height: 60px;
+}
+
+body {
+  margin: 0;
+  background: var(--brand-bg);
+  color: var(--brand-text);
+}
+
+/* Encabezado con el logo; Scalar deja ese alto libre con --scalar-custom-header-height. */
+.brand-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: var(--brand-header-height);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 24px;
+  background: var(--brand-bg);
+  border-bottom: 1px solid var(--brand-border);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.brand-header img {
+  height: 22px;
+  width: auto;
+  display: block;
+}
+
+.brand-header .brand-badge {
+  padding: 3px 10px;
+  border: 1px solid var(--brand-turquoise);
+  border-radius: 999px;
+  color: var(--brand-turquoise);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.brand-header .brand-links {
+  margin-left: auto;
+  display: flex;
+  gap: 20px;
+  font-size: 14px;
+}
+
+.brand-header a {
+  color: var(--brand-muted);
+  text-decoration: none;
+}
+
+.brand-header a:hover {
+  color: var(--brand-turquoise-hover);
+}
+
+@media (max-width: 640px) {
+  .brand-header {
+    padding: 0 16px;
+    gap: 10px;
+  }
+  .brand-header img {
+    height: 16px;
+  }
+  .brand-header .brand-links {
+    display: none;
+  }
+}
+
+.brand-loading {
+  padding: 48px 24px;
+  color: var(--brand-muted);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Variables de Scalar (tema "none" + modo oscuro forzado). */
+.dark-mode,
+.light-mode {
+  --scalar-custom-header-height: var(--brand-header-height);
+  --scalar-font: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --scalar-font-code: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --scalar-background-1: var(--brand-bg);
+  --scalar-background-2: var(--brand-surface);
+  --scalar-background-3: var(--brand-surface-2);
+  --scalar-background-accent: rgba(34, 194, 252, 0.12);
+  --scalar-border-color: var(--brand-border);
+
+  --scalar-color-1: var(--brand-text);
+  --scalar-color-2: var(--brand-muted);
+  --scalar-color-3: #6f6f78;
+  --scalar-color-accent: var(--brand-turquoise);
+
+  --scalar-button-1: var(--brand-turquoise);
+  --scalar-button-1-hover: var(--brand-turquoise-hover);
+  --scalar-button-1-color: #0b0d12;
+
+  --scalar-color-green: #67d349;
+  --scalar-color-red: #f55b5d;
+  --scalar-color-yellow: #ffc233;
+  --scalar-color-blue: #3485ff;
+  --scalar-color-orange: #ff7c33;
+  --scalar-color-purple: #b48cff;
+
+  --scalar-sidebar-background-1: #0d0d0d;
+  --scalar-sidebar-color-1: var(--brand-text);
+  --scalar-sidebar-color-2: var(--brand-muted);
+  --scalar-sidebar-border-color: var(--brand-border);
+  --scalar-sidebar-item-hover-background: var(--brand-surface);
+  --scalar-sidebar-item-hover-color: var(--brand-text);
+  --scalar-sidebar-item-active-background: rgba(34, 194, 252, 0.12);
+  --scalar-sidebar-color-active: var(--brand-turquoise);
+  --scalar-sidebar-search-background: var(--brand-surface);
+  --scalar-sidebar-search-border-color: var(--brand-border);
+  --scalar-sidebar-search-color: var(--brand-muted);
+}

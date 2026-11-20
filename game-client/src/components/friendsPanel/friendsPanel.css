@@ -1,0 +1,352 @@
+.friends {
+    position: relative;
+    display: flex;
+    flex-shrink: 0;
+}
+
+/* Mismo círculo que .header-user para que los dos botones se lean como un grupo. */
+.friends-button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: 1px solid rgba(215, 215, 215, 0.2);
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color: var(--white, #ffffff);
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.friends-button:hover,
+.friends-button--open {
+    background: var(--blue, #0066ff);
+    border-color: var(--blue, #0066ff);
+}
+
+.friends-button:focus-visible {
+    outline: 2px solid var(--turquoise, #22c2fc);
+    outline-offset: 2px;
+}
+
+.friends-icon {
+    width: 26px;
+    height: 26px;
+}
+
+.friends-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    box-sizing: border-box;
+    border-radius: 10px;
+    background: var(--red, #f55b5d);
+    color: var(--white, #ffffff);
+    font-family: var(--base);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 20px;
+    text-align: center;
+}
+
+.friends-panel {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    width: 360px;
+    max-width: calc(100vw - 32px);
+    max-height: min(520px, 70vh);
+    overflow: hidden;
+    border-radius: 16px;
+    background: rgba(28, 28, 28, 0.96);
+    border: 1px solid rgba(215, 215, 215, 0.2);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: var(--white, #ffffff);
+    font-family: var(--base);
+}
+
+.friends-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 8px;
+    border-bottom: 1px solid rgba(215, 215, 215, 0.12);
+}
+
+.friends-tab {
+    display: inline-flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--gray-light, #c4c4c4);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.friends-tab:hover {
+    color: var(--white, #ffffff);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.friends-tab--active {
+    color: var(--white, #ffffff);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.friends-tab:focus-visible {
+    outline: 2px solid var(--turquoise, #22c2fc);
+    outline-offset: -2px;
+}
+
+.friends-tab-count {
+    min-width: 18px;
+    padding: 0 5px;
+    box-sizing: border-box;
+    border-radius: 9px;
+    background: var(--red, #f55b5d);
+    color: var(--white, #ffffff);
+    font-size: 11px;
+    line-height: 18px;
+}
+
+.friends-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px 8px;
+    overflow-y: auto;
+}
+
+.friends-search {
+    margin: 0 4px;
+    padding: 10px 14px;
+    border: 1px solid rgba(215, 215, 215, 0.2);
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.35);
+    color: var(--white, #ffffff);
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.friends-search::placeholder {
+    color: #a8a8a8;
+}
+
+.friends-search:focus {
+    border-color: var(--turquoise, #22c2fc);
+}
+
+.friends-search::-webkit-search-cancel-button {
+    display: none;
+}
+
+.friends-section {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.friends-heading {
+    margin: 0;
+    padding: 0 10px;
+    color: var(--gray-light, #c4c4c4);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.friends-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+ul.friends-body {
+    padding: 8px;
+}
+
+.friends-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 48px;
+    padding: 6px 10px;
+    box-sizing: border-box;
+    border-radius: 10px;
+}
+
+.friends-row--button {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.friends-row--button:hover,
+.friends-row--button:focus-visible {
+    background: rgba(255, 255, 255, 0.1);
+    outline: none;
+}
+
+.friends-avatar {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(0, 102, 255, 0.25);
+    box-shadow: inset 0 0 0 1px rgba(34, 194, 252, 0.35);
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.friends-playing {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.friends-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 15px;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.friends-detail {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+    color: var(--gray-light, #c4c4c4);
+    font-size: 13px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.friends-live {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--green, #67d349);
+    box-shadow: 0 0 0 3px rgba(103, 211, 73, 0.2);
+}
+
+.friends-actions {
+    display: flex;
+    flex-shrink: 0;
+    gap: 6px;
+}
+
+.friends-action {
+    flex-shrink: 0;
+    padding: 6px 12px;
+    border: 1px solid rgba(215, 215, 215, 0.25);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--white, #ffffff);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.friends-action:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.friends-action--primary {
+    border-color: var(--blue, #0066ff);
+    background: var(--blue, #0066ff);
+}
+
+.friends-action--primary:hover {
+    border-color: var(--blue-hover, #3485ff);
+    background: var(--blue-hover, #3485ff);
+}
+
+.friends-action:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.friends-action:focus-visible {
+    outline: 2px solid var(--turquoise, #22c2fc);
+    outline-offset: 2px;
+}
+
+.friends-status {
+    flex-shrink: 0;
+    color: var(--gray-light, #c4c4c4);
+    font-size: 13px;
+}
+
+.friends-empty {
+    margin: 0;
+    padding: 16px 10px;
+    color: var(--gray-light, #c4c4c4);
+    font-size: 14px;
+    text-align: center;
+}
+
+@media (max-width: 900px) {
+    .friends-button {
+        width: 40px;
+        height: 40px;
+    }
+
+    .friends-icon {
+        width: 22px;
+        height: 22px;
+    }
+}
+
+/* En pantallas angostas el botón no está en el borde: el panel se ancla a la ventana. */
+@media (max-width: 480px) {
+    .friends-panel {
+        position: fixed;
+        top: 72px;
+        left: 16px;
+        right: 16px;
+        width: auto;
+        max-width: none;
+    }
+}

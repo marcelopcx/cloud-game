@@ -1,0 +1,44 @@
+.home-screen {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    /*·max-width: 1920px;*/
+    margin: 0 auto;
+}
+.home-screen__controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.home-screen__controls-icons {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.home-screen__controls-icons img {
+    height: 1em;
+    width: auto;
+}
+
+.home-screen__catalog-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 32px 16px;
+}
+
+/* Mientras llega la distribución del home: el header sobre un espacio del alto del banner. */
+.home-screen__loading {
+    width: 100%;
+    min-height: 660px;
+}
+
+/* Distribución sin banner principal: el header va solo, arriba. */
+.home-screen__header {
+    width: 100%;
+}

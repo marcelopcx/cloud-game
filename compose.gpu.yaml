@@ -1,0 +1,12 @@
+# Override opcional para servidores con NVIDIA Container Runtime.
+# Uso: docker compose -f compose.yaml -f compose.gpu.yaml up -d --build
+services:
+  game-station:
+    runtime: nvidia
+    devices:
+      - /dev/dri
+      - /dev/uinput
+    environment:
+      NVIDIA_VISIBLE_DEVICES: all
+      NVIDIA_DRIVER_CAPABILITIES: all
+      __GLX_VENDOR_LIBRARY_NAME: nvidia

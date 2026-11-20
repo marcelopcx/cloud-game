@@ -1,0 +1,25 @@
+id: smw
+version: "0.1.0"
+kind: native
+# 4:3 (SNES); Xvfb + captura + mouse usan este tamaño aunque STATION_SIZE sea 16:9.
+size: "960x720"
+command: ["/opt/smw/run-game.sh"]
+workdir: /opt/smw
+# saves/ se crea en el cwd: se borra tras cada partida.
+saves:
+  - /opt/smw/saves
+env:
+  SDL_VIDEODRIVER: x11
+  SDL_AUDIODRIVER: pulse
+  SDL_VIDEO_WINDOW_POS: "0,0"
+  SDL_VIDEO_CENTERED: "0"
+  # Xvfb sin WM: SDL descarta eventos de joystick si cree que la ventana no tiene foco.
+  SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS: "1"
+needs:
+  display: true
+  audio: true
+  gamepad: 2
+  keyboard: true
+  mouse: false
+audio:
+  fallbackArgs: []

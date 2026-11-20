@@ -1,0 +1,61 @@
+---
+// Head de Starlight + render de los diagramas Mermaid (plugins/remark-mermaid.mjs).
+import Default from '@astrojs/starlight/components/Head.astro';
+---
+
+<Default><slot /></Default>
+
+<script>
+  const diagrams = [...document.querySelectorAll<HTMLElement>('pre.mermaid')];
+
+  if (diagrams.length) {
+    diagrams.forEach((el) => (el.dataset.source = el.textContent ?? ''));
+    // mermaid pesa ~1 MB: solo se descarga en las páginas que tienen diagramas.
+    const { default: mermaid } = await import('mermaid');
+
+    const render = async () => {
+      const dark = document.documentElement.dataset.theme !== 'light';
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'base',
+        fontFamily: 'Inter Variable, Inter, system-ui, sans-serif',
+        themeVariables: dark
+          ? {
+              darkMode: true,
+              background: '#111111',
+              primaryColor: '#1c1c1c',
+              primaryBorderColor: '#22c2fc',
+              primaryTextColor: '#e1e1e6',
+              lineColor: '#5cd3fc',
+              secondaryColor: '#252726',
+              tertiaryColor: '#161616',
+              clusterBkg: '#161616',
+              clusterBorder: '#2e303a',
+              noteBkgColor: '#252726',
+              noteTextColor: '#e1e1e6',
+              edgeLabelBackground: '#111111',
+            }
+          : {
+              primaryColor: '#e8f8ff',
+              primaryBorderColor: '#0a8fc4',
+              primaryTextColor: '#111111',
+              lineColor: '#0a8fc4',
+              secondaryColor: '#f4f4f6',
+              tertiaryColor: '#fafafa',
+              clusterBkg: '#fafafa',
+              clusterBorder: '#dee2e6',
+              edgeLabelBackground: '#ffffff',
+            },
+      });
+      diagrams.forEach((el) => {
+        el.removeAttribute('data-processed');
+        el.textContent = el.dataset.source ?? '';
+      });
+      await mermaid.run({ nodes: diagrams });
+    };
+
+    await render();
+    // Al cambiar el tema (selector de Starlight) se redibujan con la otra paleta.
+    new MutationObserver(render).observe(document.documentElement, { attributeFilter: ['data-theme'] });
+  }
+</script>

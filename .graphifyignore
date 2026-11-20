@@ -1,0 +1,56 @@
+# graphify: rutas fuera del grafo de conocimiento (sintaxis .gitignore).
+# graphify ya respeta .gitignore; aquí van exclusiones extra o explícitas.
+
+# Imágenes Docker de los juegos (manifests, Dockerfiles, ROMs, ports externos)
+games/
+ftp/
+ftps/
+
+# Salida del propio graphify
+graphify-out/
+
+# Secretos: nunca deben llegar a la extracción semántica (LLM)
+.env
+.env.*
+*.pem
+*.key
+*.crt
+*.p12
+
+# Config local de IDE / asistentes
+.idea/
+.vscode/
+.claude/
+.mcp.json
+.DS_Store
+
+# Builds, dependencias y caches
+node_modules/
+target/
+dist/
+.astro/
+coverage/
+*.tsbuildinfo
+package-lock.json
+pnpm-lock.yaml
+
+# game-docs: copia generada por scripts/sync-docs.mjs (la fuente es docs/ y los README)
+game-docs/src/content/docs/*
+!game-docs/src/content/docs/index.mdx
+game-docs/public/files/
+
+# Assets estáticos sin lógica (íconos, imágenes, sonidos, animaciones Lottie, favicons)
+game-client/assets/
+game-docs/src/assets/
+*/public/favicon.svg
+game-api/*.svg
+docs/diagrams/
+
+# game-client: código muerto (ningún módulo lo importa; detectado con knip)
+game-client/src/components/gridCard/
+game-client/src/components/recentGamesLayout/
+game-client/src/hooks/useInput.ts
+game-client/src/hooks/useWebRTC.ts
+game-client/src/services/input/
+game-client/src/services/webrtc/
+game-client/src/services/ws/controlService.ts

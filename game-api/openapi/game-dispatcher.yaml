@@ -1,0 +1,319 @@
+openapi: 3.1.0
+info:
+  title: game-dispatcher
+  version: 1.0.0
+  description: |
+    Único punto de entrada para pedir una partida. Reutiliza estaciones libres, le pide al
+    loader las que faltan (reservadas para quien las pidió), atiende la cola FIFO, mantiene el
+    mínimo por juego y libera las estaciones inactivas. Guía: `docs/game-dispatcher/README.md`.
+
+    - `/sessions` es pública (el browser la usa por `/dispatcher/` del nginx). Con
+      `Authorization: Bearer <token de game-crud>` el player es el usuario (una sola sesión activa
+      en todos sus dispositivos) y la sesión trae `saveGrant`; sin token se acota por el header
+      `X-Player-Id` (anónimo, sin saves). Cada player solo ve y libera sus sesiones.
+    - `/stations`, `/pool` y `/players` exigen `Authorization: Bearer <DISPATCHER_API_TOKEN>`. En
+      `/api-docs/` no hace falta cargarlo: el proxy de game-api lo agrega en nginx.
+
+    Errores: `{ "error": { "code", "message" } }`, JSON en camelCase.
+tags:
+  - name: Sistema
+  - name: Sesiones
+  - name: Administración
+paths:
+  /health:
+    get:
+      tags: [Sistema]
+      summary: Health
+      responses:
+        '200':
+          description: Estado del dispatcher.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Health' }
+  /sessions:
+    post:
+      tags: [Sesiones]
+      summary: Pedir partida
+      description: |
+        Asigna una estación libre del juego en el acto (`ASSIGNED`) o abre la sesión en
+        `PROVISIONING` (se crea una estación reservada para este player) o `QUEUED` (sin cupo).
+        Hacer polling a `GET /sessions/{id}` hasta `ASSIGNED`.
+
+        Idempotente por player, dispositivo (`X-Player-Id`) y juego: con una sesión activa del mismo
+        juego devuelve esa. Con sesión de usuario, si ese juego está abierto en otro dispositivo
+        responde `409 PLAYING_ELSEWHERE`. Si la activa es de otro juego, la termina
+        (`endReason: REPLACED`) y abre la nueva.
+      parameters:
+        - $ref: '#/components/parameters/PlayerId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateSessionRequest' }
+      responses:
+        '202':
+          description: Sesión abierta.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Session' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404':
+          description: '`GAME_NOT_FOUND`: el loader no tiene imagen para ese juego.'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '409':
+          description: |
+            `PLAYING_ELSEWHERE`: el usuario ya tiene ese juego abierto en otro dispositivo.
+            `GAME_UNAVAILABLE`: el juego está en `COMING_SOON` o `DISABLED` en game-crud.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '503':
+          description: '`CATALOG_UNAVAILABLE`: el dispatcher todavía está arrancando.'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+  /sessions/{id}:
+    parameters:
+      - $ref: '#/components/parameters/SessionId'
+      - $ref: '#/components/parameters/PlayerId'
+    get:
+      tags: [Sesiones]
+      summary: Obtener sesión
+      description: |
+        Con `ASSIGNED`, `station.stationBase` es la base REST/WS de la estación y
+        `station.stationSessionId` el `sessionId` con el que ya está en `READY`: el cliente
+        hace `POST /launch` directo, sin `prepare`.
+      responses:
+        '200':
+          description: La sesión.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Session' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/SessionNotFound' }
+    delete:
+      tags: [Sesiones]
+      summary: Liberar sesión
+      description: |
+        Termina la sesión (`endReason: RELEASED`). La estación no se destruye: se hace
+        `stop` + `prepare` y vuelve al pool. Idempotente. Desde otro dispositivo del mismo usuario
+        responde 204 sin terminarla (no le corta la partida al que juega).
+      responses:
+        '204': { description: Liberada (o ya estaba terminada). }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '404': { $ref: '#/components/responses/SessionNotFound' }
+  /stations:
+    get:
+      tags: [Administración]
+      summary: Contenedores vivos
+      description: Cada estación con su juego y si está en uso.
+      security:
+        - bearer: []
+      parameters:
+        - name: gameId
+          in: query
+          schema: { type: string, example: supertuxkart }
+        - name: inUse
+          in: query
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: Estaciones.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Station' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /pool:
+    get:
+      tags: [Administración]
+      summary: Resumen por juego
+      security:
+        - bearer: []
+      responses:
+        '200':
+          description: Un elemento por juego del catálogo (y por juego con estaciones o cola).
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Pool' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /players/playing:
+    get:
+      tags: [Administración]
+      summary: Usuarios en partida
+      description: |
+        De esos usuarios (ids de `USERS`), los que tienen una sesión `PLAYING`; los demás no
+        aparecen. Lo usa game-crud para `GET /friends/playing`: el estado de partida no se guarda
+        en la base.
+      security:
+        - bearer: []
+      parameters:
+        - name: userIds
+          in: query
+          description: Ids separados por coma (máximo 500).
+          schema: { type: string, example: '2,3,7' }
+      responses:
+        '200':
+          description: Usuarios jugando.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Playing' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /players/events:
+    get:
+      tags: [Administración]
+      summary: Cambios de partida en vivo (SSE)
+      description: |
+        `text/event-stream` que queda abierto: un evento `playing` cada vez que un usuario con
+        sesión entra o sale de `PLAYING`, con un `Playing` en `data` (`gameId` y `since` en null =
+        dejó de jugar). Los jugadores anónimos no se publican. Cada 25 s llega un comentario
+        (`:ping`). Lo escucha game-crud (una sola conexión) para avisar a los amigos en vivo.
+      security:
+        - bearer: []
+      responses:
+        '200':
+          description: Stream de eventos.
+          content:
+            text/event-stream:
+              schema: { type: string, example: "event:playing\ndata:{\"userId\":7,\"gameId\":\"stk\",\"since\":\"2026-10-06T13:00:00Z\"}\n\n" }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      description: '`DISPATCHER_API_TOKEN` del `.env` del servidor.'
+  parameters:
+    PlayerId:
+      name: X-Player-Id
+      in: header
+      required: false
+      description: |
+        Identidad anónima del jugador (el cliente la guarda en localStorage). Obligatoria sin
+        `Authorization: Bearer` de usuario; con él se ignora.
+      schema: { type: string, pattern: '^[A-Za-z0-9-]{8,64}$', example: 2b0c4c7e-5d1f-4f5e-9d0e-6a1b2c3d4e5f }
+    SessionId:
+      name: id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+  schemas:
+    Health:
+      type: object
+      properties:
+        status: { type: string, example: ok }
+        ready: { type: boolean, description: '`true` tras adoptar los contenedores existentes al arrancar.' }
+        capacity: { type: integer, description: '`LOADER_MAX_CONTAINERS`.', example: 4 }
+        stations: { type: integer, example: 3 }
+        queued: { type: integer, example: 0 }
+    CreateSessionRequest:
+      type: object
+      required: [gameId]
+      properties:
+        gameId:
+          type: string
+          pattern: '^[a-z0-9][a-z0-9-]{0,63}$'
+          example: supertuxkart
+    SessionStatus:
+      type: string
+      description: |
+        `QUEUED` sin cupo · `PROVISIONING` esperando una estación reservada · `ASSIGNED` con
+        estación, falta el launch · `PLAYING` en partida · `ENDED` / `FAILED` terminales.
+      enum: [QUEUED, PROVISIONING, ASSIGNED, PLAYING, ENDED, FAILED]
+    Session:
+      type: object
+      properties:
+        sessionId: { type: string, format: uuid }
+        gameId: { type: string, example: supertuxkart }
+        status: { $ref: '#/components/schemas/SessionStatus' }
+        queuePosition:
+          type: [integer, 'null']
+          description: 1 = siguiente. Solo en `QUEUED`.
+        station:
+          oneOf:
+            - $ref: '#/components/schemas/StationRef'
+            - type: 'null'
+          description: Solo en `ASSIGNED` y `PLAYING`.
+        endReason:
+          type: [string, 'null']
+          description: Solo en `ENDED` / `FAILED`.
+          enum: [RELEASED, REPLACED, INACTIVITY, DISCONNECTED, CLAIM_TIMEOUT, STATION_LOST, PROVISION_FAILED, null]
+        createdAt: { type: string, format: date-time }
+        saveGrant:
+          type: [string, 'null']
+          description: |
+            Solo con sesión de usuario y estación asignada. Permiso de save (JWT `typ=save`, 24 h)
+            que el browser manda en `POST /launch` de la estación.
+    StationRef:
+      type: object
+      properties:
+        stationBase: { type: string, description: '`<DISPATCHER_STATIONS_URL>/<httpPort>`.', example: /ports/8201 }
+        stationSessionId: { type: string, description: '`sessionId` para `POST /launch`.' }
+        httpPort: { type: integer, example: 8201 }
+    StationState:
+      type: string
+      description: |
+        Estado según el dispatcher (no la FSM de la estación): `PROVISIONING` creándose,
+        `WARMING` reciclándose, `FREE` lista en `READY`, `ASSIGNED` entregada sin lanzar,
+        `IN_USE` en `PLAYING`, `DRAINING` borrándose.
+      enum: [PROVISIONING, WARMING, FREE, ASSIGNED, IN_USE, DRAINING]
+    Station:
+      type: object
+      properties:
+        id: { type: [string, 'null'], description: '`id` del loader; `null` mientras se crea.', example: 7f3a9c21 }
+        gameId: { type: string, example: supertuxkart }
+        httpPort: { type: integer, example: 8201 }
+        state: { $ref: '#/components/schemas/StationState' }
+        inUse: { type: boolean }
+        sessionId: { type: [string, 'null'], description: Dueña, o la sesión para la que está reservada. }
+        playerId: { type: [string, 'null'] }
+        since: { type: string, format: date-time, description: Último cambio de estado. }
+    Pool:
+      type: object
+      properties:
+        gameId: { type: string, example: supertuxkart }
+        minContainers: { type: integer, description: 0 con `DISPATCHER_WARM_POOL=false`. }
+        maxContainers: { type: [integer, 'null'] }
+        total: { type: integer }
+        free: { type: integer, description: Libres más las que van a quedar libres sin reserva. }
+        inUse: { type: integer }
+        provisioning: { type: integer }
+        queued: { type: integer }
+    Playing:
+      type: object
+      properties:
+        userId: { type: integer, example: 7 }
+        gameId: { type: string, example: supertuxkart }
+        since: { type: string, format: date-time, description: Desde cuándo está en `PLAYING`. }
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code: { type: string }
+            message: { type: string }
+  responses:
+    BadRequest:
+      description: '`BAD_REQUEST`: validación o `X-Player-Id` ausente / mal formado.'
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Unauthorized:
+      description: '`UNAUTHORIZED`: falta el Bearer o no coincide.'
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    SessionNotFound:
+      description: '`SESSION_NOT_FOUND`: no existe o es de otro player.'
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }

@@ -1,0 +1,167 @@
+/* Tema de Cloud Game para Starlight: colores de game-client (src/index.css). */
+
+/* Oscuro (por defecto): negro #111, texto #e1e1e6, turquesa #22c2fc. */
+:root {
+  --sl-font: 'Inter Variable', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --sl-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --sl-color-accent-low: #06303f;
+  --sl-color-accent: #22c2fc;
+  --sl-color-accent-high: #aee9ff;
+
+  --sl-color-white: #ffffff;
+  --sl-color-gray-1: #e1e1e6;
+  --sl-color-gray-2: #c4c4cc;
+  --sl-color-gray-3: #8d8d96;
+  --sl-color-gray-4: #52525b;
+  --sl-color-gray-5: #2e303a;
+  --sl-color-gray-6: #1c1c1c;
+  --sl-color-black: #111111;
+
+  --sl-color-bg-nav: #0d0d0d;
+  --sl-color-bg-sidebar: #0d0d0d;
+  --sl-color-hairline-light: #23252d;
+  --sl-color-hairline: #2e303a;
+
+  --brand-glow: radial-gradient(60% 50% at 50% 0%, rgba(34, 194, 252, 0.18), transparent 70%);
+}
+
+/* Claro: fondo blanco, texto #111, turquesa más oscuro para contraste. */
+:root[data-theme='light'] {
+  --sl-color-accent-low: #d4f3ff;
+  --sl-color-accent: #0a7fb0;
+  --sl-color-accent-high: #064a66;
+
+  --sl-color-white: #111111;
+  --sl-color-gray-1: #222222;
+  --sl-color-gray-2: #3a3a42;
+  --sl-color-gray-3: #62626b;
+  --sl-color-gray-4: #9a9aa3;
+  --sl-color-gray-5: #dee2e6;
+  --sl-color-gray-6: #f1f3f5;
+  --sl-color-gray-7: #f8f9fa;
+  --sl-color-black: #ffffff;
+
+  --sl-color-bg-nav: #ffffff;
+  --sl-color-bg-sidebar: #fafafa;
+
+  --brand-glow: radial-gradient(60% 50% at 50% 0%, rgba(10, 127, 176, 0.12), transparent 70%);
+}
+
+/* Encabezado */
+.site-title img {
+  height: 1.35rem;
+  width: auto;
+}
+
+/* Menú lateral: grupos en mayúsculas pequeñas, activo con barra turquesa. */
+.sidebar-content .group-label .large {
+  font-size: var(--sl-text-xs);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sl-color-gray-3);
+}
+
+.sidebar-content a[aria-current='page'] {
+  background: var(--sl-color-accent-low);
+  color: var(--sl-color-accent-high);
+  box-shadow: inset 3px 0 0 var(--sl-color-accent);
+  font-weight: 600;
+}
+
+:root[data-theme='light'] .sidebar-content a[aria-current='page'] {
+  color: var(--sl-color-accent-high);
+}
+
+/* Contenido */
+[data-has-sidebar] .sl-markdown-content h2 {
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--sl-color-hairline);
+}
+
+.sl-markdown-content table {
+  display: table;
+  width: 100%;
+  font-size: var(--sl-text-sm);
+}
+
+.sl-markdown-content :is(th, td) {
+  vertical-align: top;
+}
+
+.sl-markdown-content th {
+  background: var(--sl-color-gray-6);
+}
+
+/* Tablas de ficha técnica (| | |): sin fila de encabezado vacía. */
+.sl-markdown-content thead:not(:has(th:not(:empty))) {
+  display: none;
+}
+
+.sl-markdown-content :not(pre) > code {
+  border-radius: 5px;
+  background: var(--sl-color-gray-6);
+  border: 1px solid var(--sl-color-hairline);
+  padding: 0.1em 0.35em;
+}
+
+.sl-markdown-content blockquote {
+  border-inline-start-color: var(--sl-color-accent);
+  background: var(--sl-color-accent-low);
+  padding: 0.75rem 1rem;
+  border-radius: 0 8px 8px 0;
+  font-style: normal;
+}
+
+/* Diagramas Mermaid */
+.sl-markdown-content pre.mermaid {
+  display: flex;
+  justify-content: center;
+  padding: 1.25rem;
+  border: 1px solid var(--sl-color-hairline);
+  border-radius: 10px;
+  background: var(--sl-color-gray-6);
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.sl-markdown-content pre.mermaid:not([data-processed]) {
+  color: transparent; /* evita ver el texto fuente mientras carga */
+  min-height: 6rem;
+}
+
+/* Portada */
+[data-has-hero] .page {
+  background: var(--brand-glow) no-repeat;
+}
+
+.hero .tagline {
+  color: var(--sl-color-gray-2);
+}
+
+.hero .sl-flex .sl-link-button.primary {
+  background: var(--sl-color-accent);
+  border-color: var(--sl-color-accent);
+  color: #0b0d12;
+}
+
+:root[data-theme='light'] .hero .sl-flex .sl-link-button.primary {
+  color: #ffffff;
+}
+
+.card {
+  --sl-card-border: var(--sl-color-accent);
+  --sl-card-bg: var(--sl-color-accent-low);
+  border-radius: 12px;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.card:hover {
+  border-color: var(--sl-color-accent);
+  transform: translateY(-2px);
+}
+
+.sl-link-card:hover {
+  border-color: var(--sl-color-accent);
+}

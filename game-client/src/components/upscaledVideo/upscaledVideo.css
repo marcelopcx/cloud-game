@@ -1,0 +1,11 @@
+.game-view__upscale {
+    position: absolute;
+    display: block;
+    z-index: 1;
+    pointer-events: none;
+    background: #000;
+}
+
+.game-view__upscale[hidden] {
+    display: none;
+}

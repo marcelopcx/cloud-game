@@ -1,0 +1,193 @@
+.category-filter-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-width: 0;
+}
+
+.category-filter {
+    --category-filter-edge: 32px;
+
+    position: relative;
+    display: flex;
+    flex-wrap: nowrap;
+    flex: 1 1 auto;
+    gap: 12px;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.category-filter::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+.category-filter > li {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+}
+
+.category-filter--centered {
+    justify-content: center;
+}
+
+.category-filter--overflow-start {
+    mask-image: linear-gradient(
+        to right,
+        transparent 0,
+        #000 var(--category-filter-edge),
+        #000 100%
+    );
+}
+
+.category-filter--overflow-end {
+    mask-image: linear-gradient(
+        to right,
+        #000 0,
+        #000 calc(100% - var(--category-filter-edge)),
+        transparent 100%
+    );
+}
+
+.category-filter--overflow-start.category-filter--overflow-end {
+    mask-image: linear-gradient(
+        to right,
+        transparent 0,
+        #000 var(--category-filter-edge),
+        #000 calc(100% - var(--category-filter-edge)),
+        transparent 100%
+    );
+}
+
+.category-filter-arrow {
+    position: relative;
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.category-filter-arrow::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    border-top: 2px solid #ffffff;
+    border-right: 2px solid #ffffff;
+}
+
+.category-filter-arrow--prev::before {
+    transform: translate(-30%, -50%) rotate(-135deg);
+}
+
+.category-filter-arrow--next::before {
+    transform: translate(-70%, -50%) rotate(45deg);
+}
+
+.category-filter-arrow:hover:not(:disabled) {
+    border-color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.category-filter-arrow:focus-visible {
+    outline: 2px solid #22c2fc;
+    outline-offset: 2px;
+}
+
+.category-filter-arrow:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.category-filter-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 38px;
+    padding: 0 18px;
+    border: 1px solid #8a8a8a;
+    border-radius: 999px;
+    background: transparent;
+    color: #cccccc;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: normal;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.category-filter-chip:hover {
+    border-color: #ffffff;
+    color: #ffffff;
+}
+
+.category-filter-chip--active,
+.category-filter-chip--active:hover {
+    border-color: #ffffff;
+    background-color: #ffffff;
+    color: #111111;
+}
+
+.category-filter-chip:focus-visible {
+    outline: 2px solid #22c2fc;
+    outline-offset: 2px;
+}
+
+/* ---------- Variante tag: etiquetas de solo lectura ---------- */
+
+.category-filter--tag {
+    flex-wrap: wrap;
+    gap: 8px;
+    overflow: visible;
+    scroll-snap-type: none;
+}
+
+.category-filter-chip--tag {
+    height: auto;
+    padding: 6px 11px;
+    border: none;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.2;
+    cursor: default;
+    transition: background-color 0.2s ease;
+}
+
+.category-filter-chip--tag:hover {
+    background: rgba(255, 255, 255, 0.14);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+@media (max-width: 900px) {
+    .category-filter-container {
+        gap: 8px;
+    }
+
+    .category-filter-arrow {
+        width: 32px;
+        height: 32px;
+    }
+}

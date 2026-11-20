@@ -1,0 +1,123 @@
+.banner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background-color: #111111;
+    background-repeat: no-repeat;
+    background-size: cover;
+    overflow: hidden;
+    isolation: isolate;
+}
+
+.banner::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.banner-header {
+    position: relative;
+    width: 100%;
+}
+
+.banner-body {
+    position: relative;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+/* Variante featured: header arriba, contenido abajo a la izquierda */
+.banner--featured {
+    min-height: 660px;
+    background-position: 92% center;
+}
+
+.banner--featured::before {
+    background:
+        linear-gradient(to bottom, rgba(17, 17, 17, 0.9) 0%, rgba(17, 17, 17, 0) 18%),
+        linear-gradient(to right, rgba(17, 17, 17, 0.6) 0%, rgba(17, 17, 17, 0) 50%),
+        linear-gradient(to bottom, rgba(17, 17, 17, 0) 65%, #111111 100%);
+}
+
+.banner--featured .banner-body {
+    padding: 0 clamp(16px, 12.2vw, 176px) 56px;
+}
+
+/* Variante highlight: imagen a la izquierda, contenido a la derecha centrado en vertical */
+/* La imagen se ajusta al alto; si no llega al borde derecho, se funde con el fondo en vez de cortarse. */
+.banner--highlight {
+    min-height: 375px;
+}
+
+.banner-image {
+    position: absolute;
+    top: 0;
+    left: -200px;
+    z-index: -2;
+    height: 123%;
+    width: auto;
+    max-width: none;
+    pointer-events: none;
+    user-select: none;
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 240px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 240px), transparent);
+}
+
+.banner--highlight::before {
+    background:
+        linear-gradient(to bottom, #111111 0%, rgba(17, 17, 17, 0) 15%, rgba(17, 17, 17, 0) 80%, #111111 100%),
+        linear-gradient(to right, rgba(17, 17, 17, 0.25) 0%, rgba(17, 17, 17, 0.35) 30%, rgba(17, 17, 17, 0.95) 50%, rgba(var(--banner-tint, 30, 30, 30), 0.85) 100%);
+}
+
+.banner--highlight .banner-body {
+    justify-content: center;
+    padding: 48px clamp(16px, 11.5vw, 165px) 48px 55%;
+}
+
+@media (max-width: 900px) {
+    .banner--highlight {
+        min-height: 420px;
+    }
+
+    .banner-image {
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: 25% center;
+        -webkit-mask-image: none;
+        mask-image: none;
+    }
+
+    .banner--highlight::before {
+        background:
+            linear-gradient(to bottom, #111111 0%, rgba(17, 17, 17, 0) 15%, rgba(17, 17, 17, 0.7) 45%, rgba(17, 17, 17, 0.95) 75%, #111111 100%);
+    }
+
+    .banner--highlight .banner-body {
+        justify-content: flex-end;
+        padding: 32px 16px;
+    }
+}
+
+@media (max-width: 900px) {
+    .banner--featured {
+        min-height: 480px;
+        background-position: 80% center;
+    }
+
+    .banner--featured::before {
+        background:
+            linear-gradient(to bottom, rgba(17, 17, 17, 0.55) 0%, rgba(17, 17, 17, 0) 25%),
+            linear-gradient(to bottom, rgba(17, 17, 17, 0) 30%, rgba(17, 17, 17, 0.85) 75%, #111111 100%);
+    }
+
+    .banner--featured .banner-body {
+        padding: 0 16px 32px;
+    }
+}

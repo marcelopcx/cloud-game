@@ -1,0 +1,137 @@
+.carousel {
+    --carousel-gap: 24px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    padding: 24px clamp(16px, 12.2vw, 176px);
+    box-sizing: border-box;
+    text-align: left;
+}
+
+.carousel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.carousel-title {
+    margin: 0;
+    color: #ffffff;
+    font-family: 'Inter', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: normal;
+}
+
+.carousel-controls {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.carousel-arrow {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+/* Flecha dibujada con CSS */
+.carousel-arrow::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    border-top: 2px solid #ffffff;
+    border-right: 2px solid #ffffff;
+}
+
+.carousel-arrow--prev::before {
+    transform: translate(-30%, -50%) rotate(-135deg);
+}
+
+.carousel-arrow--next::before {
+    transform: translate(-70%, -50%) rotate(45deg);
+}
+
+.carousel-arrow:hover:not(:disabled) {
+    border-color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.carousel-arrow:focus-visible {
+    outline: 2px solid #22c2fc;
+    outline-offset: 2px;
+}
+
+.carousel-arrow:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.carousel-track {
+    display: flex;
+    gap: var(--carousel-gap);
+    margin: 0;
+    padding: 4px 0 0;
+    list-style: none;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+}
+
+.carousel-track::-webkit-scrollbar {
+    display: none;
+}
+
+.carousel-item {
+    flex: 0 0 min(
+        calc((100% - (var(--carousel-items) - 1) * var(--carousel-gap)) / var(--carousel-items)),
+        var(--carousel-item-max)
+    );
+    min-width: 0;
+    scroll-snap-align: start;
+}
+
+/* Los hijos ocupan todo el ancho del item para que todos midan igual */
+.carousel-item > * {
+    width: 100%;
+    max-width: none;
+}
+
+@media (max-width: 900px) {
+    .carousel {
+        --carousel-gap: 16px;
+        --carousel-items: 2.3 !important;
+        padding-inline: 16px;
+    }
+
+    .carousel-title {
+        font-size: 22px;
+    }
+
+    /* El track llega hasta el borde de la pantalla al deslizar */
+    .carousel-track {
+        margin-inline: -16px;
+        padding-inline: 16px;
+        scroll-padding-inline: 16px;
+    }
+}
+
+@media (max-width: 600px) {
+    .carousel {
+        --carousel-items: 1.4 !important;
+    }
+}

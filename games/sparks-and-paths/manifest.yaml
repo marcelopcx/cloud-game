@@ -1,0 +1,14 @@
+id: sparks-and-paths
+version: "1.0"
+kind: native
+command: ["/opt/sparks-and-paths/run-game.sh"]
+workdir: /opt/sparks-and-paths
+env: {}
+needs:
+  display: true
+  audio: true
+  gamepad: 1
+  keyboard: true
+  mouse: true
+audio:
+  fallbackArgs: ["--audio-driver", "Dummy"]

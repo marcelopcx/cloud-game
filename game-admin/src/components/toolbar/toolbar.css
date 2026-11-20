@@ -1,0 +1,105 @@
+.toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.toolbar__search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 440px;
+    height: 44px;
+    padding: 0 8px 0 14px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text-muted);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.toolbar__search:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+.toolbar__search input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: var(--text-h);
+    font-size: 14px;
+}
+
+.toolbar__search input::-webkit-search-cancel-button {
+    display: none;
+}
+
+.toolbar__search button {
+    display: flex;
+    padding: 6px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+
+.toolbar__search button:hover {
+    background: var(--surface-hover);
+    color: var(--text-h);
+}
+
+.toolbar__categories {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+}
+
+.toolbar__chip {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 8px;
+    height: 34px;
+    padding: 0 14px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.toolbar__chip:hover {
+    background: var(--surface-hover);
+    color: var(--text-h);
+}
+
+.toolbar__chip[aria-pressed="true"] {
+    border-color: var(--accent-border);
+    background: var(--accent-bg);
+    color: var(--text-h);
+}
+
+.toolbar__count {
+    min-width: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--surface-2);
+    color: var(--text-muted);
+    font-size: 11px;
+    line-height: 18px;
+    text-align: center;
+}
+
+.toolbar__chip[aria-pressed="true"] .toolbar__count {
+    background: var(--accent);
+    color: var(--accent-contrast);
+}

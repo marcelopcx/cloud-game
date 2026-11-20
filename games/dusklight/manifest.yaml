@@ -1,0 +1,28 @@
+id: dusklight
+version: "2.0.2"
+kind: native
+command: ["/opt/dusklight/run-game.sh"]
+workdir: /opt/dusklight/bin
+env:
+  # Dusklight usa SDL3: SDL_VIDEO_DRIVER / SDL_AUDIO_DRIVER (acepta también los nombres de SDL2).
+  SDL_VIDEO_DRIVER: x11
+  SDL_AUDIO_DRIVER: pulseaudio
+  SDL_VIDEO_WINDOW_POS: "0,0"
+  SDL_VIDEO_CENTERED: "0"
+  # Sin SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS: Aurora ya lo fija en 1 con SDL_SetHint y, si la
+  # variable de entorno existe, el hint falla y aborta con "Error initializing window".
+# Saves de jugadores con sesión: se sube solo la memoria (USA/Card A), config y logros.
+# Las caches de shaders de Dawn se regeneran solas (~16 MB y crecen) y los logs no son progreso.
+savesExclude:
+  - ${CACHE}/dusklight-home/.local/share/TwilitRealm/Dusklight/pipeline_cache.db
+  - ${CACHE}/dusklight-home/.local/share/TwilitRealm/Dusklight/dawn_cache.db
+  - ${CACHE}/dusklight-home/.local/share/TwilitRealm/Dusklight/logs
+  - ${CACHE}/dusklight-home/.local/share/TwilitRealm/Dusklight/mods/.cache
+needs:
+  display: true
+  audio: true
+  gamepad: 1
+  keyboard: true
+  mouse: true
+audio:
+  fallbackArgs: []

@@ -1,0 +1,23 @@
+id: zelda3
+version: "0.3.0"
+kind: native
+command: ["/opt/zelda3/run-game.sh"]
+workdir: /opt/zelda3
+# saves/ se crea en el cwd: se borra tras cada partida.
+saves:
+  - /opt/zelda3/saves
+env:
+  SDL_VIDEODRIVER: x11
+  SDL_AUDIODRIVER: pulse
+  SDL_VIDEO_WINDOW_POS: "0,0"
+  SDL_VIDEO_CENTERED: "0"
+  # Xvfb sin WM: SDL descarta eventos de joystick si cree que la ventana no tiene foco.
+  SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS: "1"
+needs:
+  display: true
+  audio: true
+  gamepad: 1
+  keyboard: true
+  mouse: false
+audio:
+  fallbackArgs: []

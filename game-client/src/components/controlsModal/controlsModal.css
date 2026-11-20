@@ -1,0 +1,217 @@
+/* Tarjeta gris del diseño (Frame 179858): título arriba a la izquierda y el mando centrado debajo. */
+.modal.controls-modal {
+    width: min(1100px, 100%);
+    height: auto;
+    max-height: calc(100dvh - 48px);
+    align-items: center;
+    padding: 56px 72px 48px;
+    border: none;
+    border-radius: 24px;
+    background-color: #232323;
+    color: var(--white, #ffffff);
+    overflow-y: auto;
+}
+
+.controls-modal-header {
+    position: absolute;
+    top: 48px;
+    left: 64px;
+}
+
+.controls-modal-title {
+    margin: 0;
+    font-family: var(--brand, system-ui, sans-serif);
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.controls-modal-subtitle {
+    margin: 4px 0 0;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 15px;
+}
+
+.controls-modal-pad {
+    /* Alto que queda libre para el mando; el ancho sale de la proporción del SVG y deja aire a los
+       costados para los textos. Es el contenedor de los cqw, así todo escala junto con el dibujo. */
+    --pad-height: min(640px, calc(100dvh - 200px));
+    position: relative;
+    flex-shrink: 0;
+    width: min(74%, calc(var(--pad-height) * 811 / 741));
+    aspect-ratio: 811 / 741;
+    margin-top: 40px;
+    container-type: inline-size;
+    user-select: none;
+}
+
+.controls-modal-pad img {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* Texto anclado a la punta de una línea (--x/--y en % del dibujo). */
+.controls-modal-label {
+    position: absolute;
+    top: var(--y);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4cqw;
+    width: max-content;
+    max-width: 17cqw;
+    margin: 0;
+    padding: 0;
+    font-size: max(11px, 2cqw);
+    font-weight: 500;
+    line-height: 1.2;
+    list-style: none;
+    transform: translateY(-50%);
+}
+
+.controls-modal-label.is-left {
+    right: calc(100% - var(--x) + 2cqw);
+    align-items: flex-end;
+    text-align: right;
+}
+
+.controls-modal-label.is-right {
+    left: calc(var(--x) + 2cqw);
+}
+
+.controls-modal-label.is-bottom {
+    left: var(--x);
+    align-items: center;
+    max-width: 30cqw;
+    text-align: center;
+    transform: translate(-50%, 2.2cqw);
+}
+
+/* Botón real cuando un punto agrupa varios (stick/L3, Start/Select) y en la lista del D-Pad. */
+.controls-modal-button {
+    margin-right: 0.5em;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.8em;
+    font-weight: 600;
+}
+
+.controls-modal-extra {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 24px;
+    margin: 24px 0 0;
+    padding: 0;
+    font-size: 14px;
+    list-style: none;
+}
+
+.controls-modal-status {
+    margin: 16px 0 0;
+    color: rgba(255, 255, 255, 0.56);
+    font-size: 14px;
+}
+
+.controls-modal-retry {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--turquoise, #22c2fc);
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+/* El cierre del diseño es una X suelta, sin círculo. */
+.controls-modal .modal-close {
+    top: 40px;
+    right: 40px;
+    width: 52px;
+    height: 52px;
+    border: none;
+    background: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+.controls-modal .modal-close svg {
+    width: 32px;
+    height: 32px;
+}
+
+.controls-modal .modal-close:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--white, #ffffff);
+}
+
+/* En pantallas angostas el título deja de flotar y el mando va debajo. */
+@media (max-width: 720px) {
+    .modal.controls-modal {
+        align-items: stretch;
+        padding: 24px 16px;
+    }
+
+    .controls-modal-header {
+        position: static;
+        padding-right: 56px;
+    }
+
+    .controls-modal .modal-close {
+        top: 16px;
+        right: 12px;
+    }
+
+    .controls-modal-pad {
+        align-self: center;
+        margin-top: 16px;
+    }
+}
+
+/* Flechas de paginación mando ⇄ teclado: fuera de la tarjeta, a sus costados. */
+.controls-modal-arrow {
+    position: fixed;
+    top: 50%;
+    z-index: 1001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    transform: translateY(-50%);
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.16);
+    color: #fff;
+    cursor: pointer;
+}
+
+.controls-modal-arrow:hover,
+.controls-modal-arrow:focus-visible {
+    background: rgba(255, 255, 255, 0.32);
+}
+
+/* La tarjeta mide --card-w (o el ancho de pantalla) centrada: las flechas quedan a 16px de su borde (o del de la pantalla). */
+.controls-modal-arrow.is-prev { left: max(8px, calc(50vw - var(--card-w) / 2 - 64px)); }
+.controls-modal-arrow.is-next { right: max(8px, calc(50vw - var(--card-w) / 2 - 64px)); }
+
+.controls-modal-dots {
+    position: fixed;
+    bottom: 8px;
+    left: 50%;
+    z-index: 1001;
+    display: flex;
+    gap: 8px;
+    transform: translateX(-50%);
+}
+
+.controls-modal-dots span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.35);
+}
+
+.controls-modal-dots span.is-current {
+    background: #fff;
+}

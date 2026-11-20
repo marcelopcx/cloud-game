@@ -1,0 +1,21 @@
+id: battleship
+version: "1.6.0"
+kind: native
+size: "960x720"
+command: ["/opt/battleship/run-game.sh"]
+workdir: /opt/battleship
+env:
+  SDL_VIDEODRIVER: x11
+  SDL_AUDIODRIVER: pulse
+  SDL_VIDEO_WINDOW_POS: "0,0"
+  SDL_VIDEO_CENTERED: "0"
+  LIBGL_ALWAYS_SOFTWARE: "1"
+  MESA_GL_VERSION_OVERRIDE: "4.5"
+needs:
+  display: true
+  audio: true
+  gamepad: 4
+  keyboard: true
+  mouse: true
+audio:
+  fallbackArgs: []

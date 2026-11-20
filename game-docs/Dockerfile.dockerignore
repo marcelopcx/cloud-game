@@ -1,0 +1,13 @@
+# Contexto = raíz del repo (ver Dockerfile). Solo entra lo que usa el sitio.
+*
+!README.md
+!docs/
+!games/README.md
+!game-api/README.md
+!game-docs/
+game-docs/node_modules/
+game-docs/dist/
+game-docs/.astro/
+game-docs/src/content/docs/*
+!game-docs/src/content/docs/index.mdx
+game-docs/public/files/

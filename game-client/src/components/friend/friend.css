@@ -1,0 +1,108 @@
+.friend {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    width: 100%;
+    padding: 16px 10px;
+    border: 0;
+    border-radius: 14px;
+    background: transparent;
+    color: #ffffff;
+    font-family: 'Inter', sans-serif;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.friend:hover,
+.friend:focus-visible,
+.friend[data-gamepad-focus] {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* Anillo hacia adentro: el track del carrusel tiene overflow y recortaría uno hacia afuera. */
+.friend:focus-visible,
+html[data-input='gamepad'] .friend[data-gamepad-focus] {
+    outline: 2px solid #22c2fc;
+    outline-offset: -2px;
+}
+
+.friend-avatar {
+    position: relative;
+    flex-shrink: 0;
+    width: 108px;
+    height: 108px;
+    margin-bottom: 12px;
+    border-radius: 50%;
+    background: #262626;
+}
+
+.friend--playing .friend-avatar {
+    background: #c026ff;
+}
+
+.friend-game-icon {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    user-select: none;
+}
+
+.friend-initial {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(0, 102, 255, 0.25);
+    box-shadow: inset 0 0 0 1px rgba(34, 194, 252, 0.35);
+    color: #ffffff;
+    font-size: 44px;
+    font-weight: 700;
+    line-height: 1;
+    user-select: none;
+}
+
+.friend-badge {
+    position: absolute;
+    right: -10px;
+    bottom: -4px;
+    width: 36px;
+    height: 36px;
+}
+
+.friend-badge-bg {
+    fill: #a3a3a3;
+}
+
+.friend--playing .friend-badge-bg {
+    fill: #31cfff;
+}
+
+.friend-name,
+.friend-status {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.3;
+}
+
+.friend-name {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.friend-status {
+    color: #a3a3a3;
+    font-size: 15px;
+    font-weight: 400;
+}
+
+.friend--playing .friend-status {
+    color: #31cfff;
+}

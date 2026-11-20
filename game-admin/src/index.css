@@ -1,0 +1,180 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/*
+ * Tokens provisorios (paleta de game-client) hasta que llegue el diseño final.
+ * Oscuro por defecto; claro con prefers-color-scheme: light.
+ */
+:root {
+  --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, 'SF Mono', Consolas, monospace;
+
+  --bg: #0d0e11;
+  --surface: #16181d;
+  --surface-2: #1d2027;
+  --surface-hover: #232730;
+  --border: #2a2e37;
+  --border-strong: #3a3f4b;
+  --text: #a3a9b6;
+  --text-h: #f4f5f7;
+  --text-muted: #6d7482;
+
+  --accent: #22c2fc;
+  --accent-strong: #0066ff;
+  --accent-contrast: #04121a;
+  --accent-bg: rgba(34, 194, 252, 0.12);
+  --accent-border: rgba(34, 194, 252, 0.45);
+  --gradient: linear-gradient(135deg, #0066ff 0%, #22c2fc 100%);
+
+  --danger: #f55b5d;
+  --danger-bg: rgba(245, 91, 93, 0.12);
+  --success: #67d349;
+  --success-bg: rgba(103, 211, 73, 0.12);
+  --warning: #ff9f43;
+  --star: #ffc53d;
+
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 18px;
+  --shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.55), 0 2px 6px rgba(0, 0, 0, 0.3);
+  --backdrop: rgba(4, 5, 8, 0.7);
+
+  font: 15px/1.5 var(--sans);
+  color-scheme: dark;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f4f6f9;
+    --surface: #ffffff;
+    --surface-2: #f0f2f6;
+    --surface-hover: #e9edf3;
+    --border: #e1e5ec;
+    --border-strong: #cdd3dd;
+    --text: #4b5261;
+    --text-h: #111318;
+    --text-muted: #8a91a0;
+
+    --accent: #0066ff;
+    --accent-contrast: #ffffff;
+    --accent-bg: rgba(0, 102, 255, 0.08);
+    --accent-border: rgba(0, 102, 255, 0.4);
+
+    --danger: #e5484d;
+    --danger-bg: rgba(229, 72, 77, 0.08);
+    --success: #2f9e44;
+    --success-bg: rgba(47, 158, 68, 0.1);
+    --star: #f5a524;
+
+    --shadow: 0 12px 32px -10px rgba(17, 19, 24, 0.18), 0 2px 6px rgba(17, 19, 24, 0.06);
+    --backdrop: rgba(17, 19, 24, 0.45);
+
+    color-scheme: light;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  background: var(--bg);
+}
+
+#root {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  color: var(--text-h);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+p {
+  margin: 0;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.9em;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--text-h);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: var(--accent-bg);
+}
+
+/* Visible solo para lectores de pantalla. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Base compartida de los <dialog> (formulario, detalle, confirmación). */
+.modal {
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+
+.modal::backdrop {
+  background: var(--backdrop);
+  backdrop-filter: blur(6px);
+}
+
+.modal[open] {
+  animation: modal-in 0.18s ease-out;
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

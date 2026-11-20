@@ -1,0 +1,289 @@
+openapi: 3.1.0
+info:
+  title: game-station
+  version: 1.0.0
+  description: |
+    Contrato HTTP de la estación (fuente: `docs/game-station/api.md`). JSON en camelCase,
+    errores `{ "error": { "code", "message" } }`.
+
+    Orden de una partida: **Health → Prepare → (Health hasta `READY`) → Launch → Stop**.
+
+    ## WebSockets
+
+    OpenAPI no describe WebSockets: las rutas van acá y sus mensajes en los modelos
+    `ControlEvent` y `SignalingMessage`.
+
+    | Ruta | Dirección | Mensajes |
+    | --- | --- | --- |
+    | `WS /ws/control` | estación → cliente (lo que envía el cliente se ignora; admite varias conexiones) | `STATE`, `ERROR` (precede a `STATE FAILED`; trae los errores de `prepare`) |
+    | `WS /ws/webrtc` | ambos; un solo peer, el navegador es el offerer | `OFFER`, `ANSWER`, `ICE`, `ERROR` (`NOT_PLAYING`, `PEER_BUSY`, `SIGNALING`) |
+
+    El video va por WebRTC (RTP/SRTP) y el input por el DataChannel `input`
+    (`docs/game-station/input.md`); eso se prueba desde el cliente.
+tags:
+  - name: Partida
+security: []
+paths:
+  /health:
+    get:
+      tags: [Partida]
+      summary: Health
+      description: Snapshot del estado. No incluye `progress` (solo sale por `/ws/control`).
+      responses:
+        '200':
+          description: Estado de la estación.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Health' }
+  /prepare:
+    post:
+      tags: [Partida]
+      summary: Prepare
+      description: |
+        Inicia la copia de assets a `CACHE_ROOT/<gameId>/<version>/payload.bin`. El `202` solo
+        confirma que empezó: el resultado llega como `STATE READY` / `STATE FAILED` por
+        `/ws/control` y se refleja en `/health`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PrepareRequest' }
+      responses:
+        '202':
+          description: Copia iniciada.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessionId: { type: string }
+                  state: { type: string, const: PREPARING }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '409':
+          description: '`PREPARE_IN_PROGRESS`: ya está en `PREPARING` o `PLAYING`.'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+  /launch:
+    post:
+      tags: [Partida]
+      summary: Launch
+      description: |
+        Requiere `READY`. Arranca input, Xvfb, juego, audio y captura, y pasa a `PLAYING`.
+        Después el cliente negocia WebRTC en `/ws/webrtc`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [sessionId, gameId]
+              properties:
+                sessionId: { type: string, format: uuid }
+                gameId: { type: string, example: supertuxkart }
+                saveGrant:
+                  type: [string, 'null']
+                  description: |
+                    Permiso de save de la sesión del dispatcher (jugador con sesión). La estación baja
+                    el progreso de game-crud (`SAVES_URL`) antes de arrancar y lo sube en `stop`. Si no
+                    lo puede bajar responde `500 LAUNCH_FAILED` y no arranca.
+      responses:
+        '200':
+          description: Partida en curso.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  state: { type: string, const: PLAYING }
+                  wsUrl: { type: string, example: /ws/webrtc }
+                  needs: { $ref: '#/components/schemas/Needs' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '409':
+          description: '`STATION_BUSY`: ya está en `PLAYING`.'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '424':
+          description: '`GAME_NOT_READY`: no hubo un `prepare` exitoso.'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '500':
+          description: '`LAUNCH_FAILED`: falló display, juego o nativo WebRTC (la estación hace `stop`).'
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+  /stop:
+    post:
+      tags: [Partida]
+      summary: Stop
+      description: |
+        Idempotente. Cierra peer, captura, pads y el juego; deja la estación en `IDLE`.
+        Si la partida tenía `saveGrant`, primero sube el progreso a game-crud.
+        Si venía de `PLAYING` con `STATION_RESET_SAVES=true` (default en la imagen), borra el
+        progreso del jugador: vacía el cache (el próximo `prepare` vuelve a copiar), restaura `HOME`
+        y borra los `saves` del manifiesto. No borra el contenedor (eso es `DELETE /containers/{id}` del loader).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [sessionId]
+              properties:
+                sessionId: { type: string, description: 'Obligatorio, pero no se compara con la sesión activa.' }
+      responses:
+        '204': { description: Estación en `IDLE`. }
+        '400': { $ref: '#/components/responses/BadRequest' }
+components:
+  schemas:
+    State:
+      type: string
+      enum: [IDLE, PREPARING, READY, PLAYING, FAILED]
+    Needs:
+      type: object
+      description: Periféricos que requiere el juego (del manifiesto).
+      properties:
+        display: { type: boolean }
+        audio: { type: boolean }
+        gamepad: { type: integer, description: Cantidad de pads., example: 2 }
+        keyboard: { type: boolean }
+        mouse: { type: boolean }
+        relativeMouse: { type: boolean }
+    Health:
+      type: object
+      properties:
+        status: { type: string, example: UP }
+        stationId: { type: string, example: station-1 }
+        state: { $ref: '#/components/schemas/State' }
+        gameId: { type: [string, 'null'] }
+        sessionId: { type: [string, 'null'] }
+        encoder:
+          type: [string, 'null']
+          description: '`openh264` o `smpte` en `PLAYING`; `null` en otro estado.'
+        cache:
+          type: array
+          description: Entradas del cache que ya tienen `payload.bin`.
+          items:
+            type: object
+            properties:
+              gameId: { type: string }
+              version: { type: string }
+        supportedGameId:
+          type: string
+          description: '`id` del manifiesto; único `gameId` aceptado.'
+          example: supertuxkart
+        needs: { $ref: '#/components/schemas/Needs' }
+        httpPort: { type: integer, example: 8200 }
+        display: { type: string, example: ':200' }
+        gameWidth: { type: integer, description: Resolución del juego (no del stream)., example: 1280 }
+        gameHeight: { type: integer, example: 720 }
+        playingSince:
+          type: [integer, 'null']
+          description: Epoch ms del `launch`; `null` fuera de `PLAYING`.
+        lastInputAt:
+          type: [integer, 'null']
+          description: Epoch ms del último input real (control presionado o movimiento; no cuenta un datagrama en reposo); `null` sin input o fuera de `PLAYING`.
+        peerConnected:
+          type: boolean
+          description: Hay un socket `/ws/webrtc` abierto (solo puede ser `true` en `PLAYING`).
+    PrepareRequest:
+      type: object
+      required: [sessionId, gameId, version, source]
+      properties:
+        sessionId: { type: string, format: uuid, description: Lo genera el cliente. }
+        gameId: { type: string, example: supertuxkart }
+        version: { type: string, example: 1.0.0 }
+        source:
+          type: object
+          required: [checksum]
+          properties:
+            type:
+              type: string
+              enum: [local, http, azure-sas]
+              default: local
+              description: Solo `local`; los otros fallan con `UNSUPPORTED_SOURCE`.
+            path:
+              type: string
+              description: Archivo o directorio con `payload.bin`. `/library/<x>` se resuelve bajo `LIBRARY_ROOT/<x>`.
+              example: /library/supertuxkart/1.0.0
+            checksum:
+              type: string
+              description: '`sha256:<hex>` o `<hex>`. Todo ceros (`sha256:00`) → usa el sidecar `checksum` de la library.'
+              example: sha256:00
+            url: { type: string, description: Se acepta y se ignora. }
+      example:
+        sessionId: 0b8f6f1e-3c1a-4c2e-9d0a-2f4b6c8d0e12
+        gameId: supertuxkart
+        version: 1.0.0
+        source: { type: local, path: /library/supertuxkart/1.0.0, checksum: 'sha256:00' }
+    ControlEvent:
+      description: Mensaje de `WS /ws/control` (estación → cliente).
+      oneOf:
+        - title: STATE
+          type: object
+          description: En cada transición y durante el progreso de `prepare`.
+          properties:
+            type: { type: string, const: STATE }
+            state: { $ref: '#/components/schemas/State' }
+            progress: { type: integer, minimum: 0, maximum: 100 }
+            message:
+              type: string
+              description: '`Copiando assets` · `Cache hit` · `Verificado` · `Listo` · `En partida` · `Libre` · mensaje del error.'
+            cacheHit: { type: boolean }
+            gameWidth: { type: integer, example: 1280 }
+            gameHeight: { type: integer, example: 720 }
+        - title: ERROR
+          type: object
+          description: Precede a `STATE FAILED`.
+          properties:
+            type: { type: string, const: ERROR }
+            code:
+              type: string
+              enum: [SOURCE_NOT_FOUND, CHECKSUM_MISMATCH, UNSUPPORTED_SOURCE, PREPARE_FAILED]
+            message: { type: string }
+    SignalingMessage:
+      description: Mensaje de `WS /ws/webrtc`. El OFFER trae video y audio `recvonly` y el DataChannel `input`.
+      oneOf:
+        - title: OFFER
+          type: object
+          description: cliente → estación.
+          properties:
+            type: { type: string, const: OFFER }
+            sdp: { type: string }
+        - title: ANSWER
+          type: object
+          description: estación → cliente.
+          properties:
+            type: { type: string, const: ANSWER }
+            sdp: { type: string }
+        - title: ICE
+          type: object
+          description: Ambos sentidos. Los que llegan antes del SDP remoto se encolan.
+          properties:
+            type: { type: string, const: ICE }
+            candidate: { type: string, example: 'candidate:…' }
+            sdpMid: { type: string, example: '0' }
+            sdpMLineIndex: { type: integer, example: 0 }
+        - title: ERROR
+          type: object
+          description: estación → cliente; con `NOT_PLAYING` y `PEER_BUSY` la estación cierra el socket.
+          properties:
+            type: { type: string, const: ERROR }
+            code: { type: string, enum: [NOT_PLAYING, PEER_BUSY, SIGNALING] }
+            message: { type: string }
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code: { type: string, example: GAME_NOT_READY }
+            message: { type: string }
+  responses:
+    BadRequest:
+      description: '`BAD_REQUEST` (body inválido) o `UNKNOWN_GAME` (`gameId` distinto del manifiesto).'
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }

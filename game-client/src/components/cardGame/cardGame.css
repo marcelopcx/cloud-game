@@ -1,0 +1,177 @@
+.card-game {
+    position: relative;
+
+    width: 100%;
+    max-width: 260px;
+
+    overflow: hidden;
+
+    cursor: pointer;
+
+    border-radius: 8px;
+
+    transition:
+            transform 150ms ease,
+            box-shadow 150ms ease;
+}
+
+.card-game:hover {
+    transform: translateY(-2px);
+}
+
+.card-game:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+}
+
+
+.card-img-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 2 / 3;
+
+    overflow: hidden;
+}
+
+.card-img {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+
+    border-radius: inherit;
+}
+
+.card-info-wrapper {
+    display: flex;
+    align-items: center;
+
+    gap: 4px;
+
+    padding: 10px 0;
+}
+
+.card-rating {
+    margin: 0;
+
+    color: #a3a3a3;
+
+    font-family: Inter, sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.card-star {
+    width: 14px;
+    height: 14px;
+
+    flex-shrink: 0;
+}
+
+.card-gender {
+    position: absolute;
+
+    top: 10px;
+    left: 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 5px;
+
+    background: rgb(23 23 23 / 80%);
+    border-radius: 8px;
+}
+
+.card-gender-text {
+    margin: 0;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.card-game--compact {
+    max-width: none;
+}
+
+/* Misma proporción que los header.jpg de Steam (460×215): la portada entra completa sin recorte */
+.card-game--compact .card-img-wrapper {
+    aspect-ratio: 460 / 215;
+}
+
+.card-game--compact .card-img {
+    border-radius: 8px;
+}
+
+.card-info-wrapper--compact {
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.card-platforms {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+}
+
+.card-platform {
+    display: flex;
+}
+
+/* Todas las plataformas alineadas a la misma altura, respetando la proporción de cada SVG */
+.card-platform-icon {
+    display: block;
+    width: auto;
+    height: 20px;
+}
+
+.card-rating-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.card-game--compact .card-rating {
+    font-size: 14px;
+}
+
+/* Próximamente: se ve en el catálogo pero no se puede jugar todavía. */
+.card-game--coming-soon .card-img {
+    filter: grayscale(0.7) brightness(0.6);
+    transition: filter 150ms ease;
+}
+
+.card-game--coming-soon:hover .card-img {
+    filter: grayscale(0.4) brightness(0.75);
+}
+
+.card-coming-soon {
+    position: absolute;
+    right: 0;
+    bottom: 12px;
+    left: 0;
+
+    padding: 6px 10px;
+
+    background: #0066FFEB;
+    color: #ffffff;
+
+    font-family: Inter, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.card-game--compact .card-coming-soon {
+    bottom: 10px;
+}

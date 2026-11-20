@@ -1,0 +1,73 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Secretos y entorno local
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.p12
+
+# Python (scripts auxiliares)
+.venv/
+__pycache__/
+*.py[cod]
+
+# Node / frontend (game-client)
+node_modules/
+dist/
+dist-ssr/
+*.tsbuildinfo
+.npm/
+.pnpm-store/
+coverage/
+*.local
+
+# Java / Maven (game-station)
+target/
+*.class
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+
+# IDEs
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+*.sw?
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Docker / build scratch
+# Generados por scripts/deploy-all.sh
+compose.multi.yaml
+.multi/
+# Cuenta y certificados Let's Encrypt (TLS_CERT=acme)
+.acme/
+*.tar
+*.tgz
+
+# ROMs y discos propios: cada games/<juego>/ tiene su .gitignore
+
+# Asistentes IA (config local por desarrollador)
+CLAUDE.md
+.claude/*
+/.mcp.json
+/game-client/pnpm-lock.yaml
+
+# graphify (grafo de conocimiento generado)
+graphify-out/

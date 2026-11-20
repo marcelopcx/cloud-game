@@ -1,0 +1,84 @@
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 10px 24px;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    color: #ffffff;
+    font-family: 'Inter', sans-serif;
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 1.2;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.button-icon {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    transition: filter 0.2s ease;
+}
+
+.button:hover:not(:disabled) .button-icon {
+    filter: invert(1);
+}
+
+@media (max-width: 900px) {
+    .button {
+        gap: 10px;
+        padding: 8px 16px;
+        font-size: 18px;
+    }
+
+    .button-icon {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+.button--primary {
+    background-color: #0066ff;
+    border-color: #0066ff;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.button--primary:hover:not(:disabled) {
+    background-color: #fdfdfe;
+    border-color: #fdfdfe;
+    color: #000409;
+}
+
+.button--transparent {
+    background-color: transparent;
+    border-color: #ffffff;
+    color: #ffffff;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+
+}
+
+.button--transparent:hover:not(:disabled) {
+    background-color: #ffffff;
+    color:#000409;
+}
+
+.button:focus-visible {
+    outline: 2px solid #22c2fc;
+    outline-offset: 2px;
+}
+
+.button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Juego «Próximamente»: el botón no hace nada, pero se lee entero (sin la opacidad de disabled). */
+.button.button--coming-soon:disabled {
+    border-color: #0066ff;
+    color: #0066ff;
+    opacity: 1;
+    cursor: default;
+}

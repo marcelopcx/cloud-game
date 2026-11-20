@@ -1,0 +1,20 @@
+{
+  "name": "game-docs",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "sync": "node scripts/sync-docs.mjs",
+    "dev": "npm run sync && astro dev",
+    "build": "npm run sync && astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/markdown-remark": "^7.3.1",
+    "@astrojs/starlight": "^0.42.4",
+    "@fontsource-variable/inter": "^5.3.0",
+    "astro": "^7.3.5",
+    "mermaid": "^11.12.0",
+    "sharp": "^0.34.4"
+  }
+}

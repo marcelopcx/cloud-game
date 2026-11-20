@@ -1,0 +1,119 @@
+.tag-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tag-picker__label {
+    color: var(--text-h);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.tag-picker__box {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    min-height: 42px;
+    padding: 5px 8px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    cursor: text;
+}
+
+.tag-picker__box:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+/* Doble clase: le gana a los estilos de input del formulario que lo contiene. */
+.tag-picker .tag-picker__box input {
+    flex: 1 1 120px;
+    width: auto;
+    min-width: 80px;
+    padding: 4px;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    background: transparent;
+    color: var(--text-h);
+    font-size: 14px;
+}
+
+.tag-picker__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px 4px 3px 10px;
+    border: 1px solid var(--accent-border);
+    border-radius: 999px;
+    background: var(--accent-bg);
+    color: var(--text-h);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.tag-picker__chip button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+}
+
+.tag-picker__chip button:hover {
+    background: var(--accent-bg);
+}
+
+.tag-picker__suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-height: 28px;
+}
+
+.tag-picker__suggestion {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 28px;
+    padding: 0 12px;
+    border: 1px dashed var(--border-strong);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text);
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.tag-picker__suggestion:hover {
+    border-style: solid;
+    border-color: var(--accent-border);
+    background: var(--accent-bg);
+    color: var(--text-h);
+}
+
+.tag-picker__suggestion--new {
+    border-color: var(--accent-border);
+    color: var(--accent);
+}
+
+.tag-picker__message,
+.tag-picker__hint {
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 28px;
+}
+
+.tag-picker__hint {
+    line-height: 1.4;
+}

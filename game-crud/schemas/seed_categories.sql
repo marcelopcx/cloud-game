@@ -1,0 +1,22 @@
+INSERT INTO CATEGORY (name) VALUES
+    ('Acción'),
+    ('Aventura'),
+    ('RPG'),
+    ('Estrategia'),
+    ('Simulación'),
+    ('Deportes'),
+    ('Carreras'),
+    ('Shooter'),
+    ('Plataformas'),
+    ('Puzzle'),
+    ('Lucha'),
+    ('Terror'),
+    ('Sandbox'),
+    ('Supervivencia'),
+    ('Mundo abierto'),
+    ('Arcade'),
+    ('Musical'),
+    ('Indie'),
+    ('Multijugador'),
+    ('Cooperativo')
+ON CONFLICT (name) DO NOTHING;

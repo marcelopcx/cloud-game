@@ -1,0 +1,22 @@
+id: ghostship
+version: "3.0.0"
+kind: native
+command: ["/opt/ghostship/run-game.sh"]
+workdir: /opt/ghostship
+env:
+  SDL_VIDEODRIVER: x11
+  SDL_AUDIODRIVER: pulse
+  SDL_VIDEO_WINDOW_POS: "0,0"
+  SDL_VIDEO_CENTERED: "0"
+  # Xvfb sin WM: SDL descarta eventos de joystick si cree que la ventana no tiene foco.
+  SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS: "1"
+  LIBGL_ALWAYS_SOFTWARE: "1"
+  MESA_GL_VERSION_OVERRIDE: "4.5"
+needs:
+  display: true
+  audio: true
+  gamepad: 1
+  keyboard: true
+  mouse: true
+audio:
+  fallbackArgs: []

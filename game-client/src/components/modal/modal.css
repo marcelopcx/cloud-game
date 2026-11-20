@@ -1,0 +1,151 @@
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background:
+        radial-gradient(ellipse at center, rgba(4, 6, 10, 0.45) 0%, rgba(4, 6, 10, 0.85) 100%);
+    backdrop-filter: blur(14px) saturate(120%);
+    -webkit-backdrop-filter: blur(14px) saturate(120%);
+    overscroll-behavior: contain;
+}
+
+.modal-overlay.is-open {
+    animation: modal-fade-in 0.4s ease both;
+}
+
+.modal-overlay.is-closing {
+    animation: modal-fade-out 0.32s ease both;
+}
+
+.modal {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: min(1400px, 100%);
+    height: min(840px, calc(100dvh - 48px));
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    background-color: #0b0d12;
+    box-shadow:
+        0 40px 120px -20px rgba(0, 0, 0, 0.85),
+        0 0 0 1px rgba(0, 0, 0, 0.4);
+    isolation: isolate;
+}
+
+.modal.is-open {
+    animation: modal-slide-up 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.modal.is-closing {
+    animation: modal-slide-down 0.32s cubic-bezier(0.7, 0, 0.84, 0) both;
+}
+
+.modal-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 50%;
+    background: rgba(11, 13, 18, 0.55);
+    color: var(--white, #ffffff);
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-close:hover {
+    background: var(--white, #ffffff);
+    border-color: var(--white, #ffffff);
+    color: #0b0d12;
+    transform: scale(1.06);
+}
+
+.modal-close:focus-visible {
+    outline: 2px solid var(--turquoise, #22c2fc);
+    outline-offset: 3px;
+}
+
+@keyframes modal-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes modal-fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes modal-slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(96px) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes modal-slide-down {
+    from {
+        opacity: 1;
+        transform: none;
+    }
+    to {
+        opacity: 0;
+        transform: translateY(64px) scale(0.98);
+    }
+}
+
+/* En móvil el modal se comporta como una hoja que sube desde el borde inferior. */
+@media (max-width: 720px) {
+    .modal-overlay {
+        align-items: flex-end;
+        padding: 0;
+    }
+
+    .modal {
+        height: auto;
+        max-height: 94dvh;
+        border-bottom: none;
+        border-radius: 22px 22px 0 0;
+    }
+
+    .modal-close {
+        top: 14px;
+        right: 14px;
+    }
+
+    @keyframes modal-slide-up {
+        from { transform: translateY(100%); }
+        to { transform: none; }
+    }
+
+    @keyframes modal-slide-down {
+        from { transform: none; }
+        to { transform: translateY(100%); }
+    }
+}
+
+/* Duración mínima (no "none") para que animationend siga disparando y el modal se desmonte. */
+@media (prefers-reduced-motion: reduce) {
+    .modal-overlay.is-open,
+    .modal-overlay.is-closing,
+    .modal.is-open,
+    .modal.is-closing {
+        animation-duration: 0.01ms;
+    }
+}

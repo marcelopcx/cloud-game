@@ -1,0 +1,14 @@
+id: iwariwe
+version: "2019"
+kind: native
+command: ["/opt/iwariwe/run-game.sh"]
+workdir: /opt/iwariwe
+env: {}
+needs:
+  display: true
+  audio: true
+  gamepad: 0
+  keyboard: true
+  mouse: true
+audio:
+  fallbackArgs: ["-ad", "Dummy"]

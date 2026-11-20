@@ -1,0 +1,15 @@
+---
+// La primera visita arranca en oscuro (el tema de Cloud Game); después manda lo que elija el
+// usuario en el selector, incluido "Auto".
+import Default from '@astrojs/starlight/components/ThemeProvider.astro';
+---
+
+<script is:inline>
+  try {
+    if (!localStorage.getItem('cloudgame-theme-init')) {
+      localStorage.setItem('cloudgame-theme-init', '1');
+      if (!localStorage.getItem('starlight-theme')) localStorage.setItem('starlight-theme', 'dark');
+    }
+  } catch {}
+</script>
+<Default />

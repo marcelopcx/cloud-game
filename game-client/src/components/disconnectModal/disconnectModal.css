@@ -1,0 +1,82 @@
+/* El modal base es la ficha grande del juego; acá queda una tarjeta angosta centrada en el aviso. */
+.modal.disconnect-modal {
+    width: min(560px, 100%);
+    height: auto;
+    max-height: min(760px, calc(100dvh - 48px));
+}
+
+.disconnect-modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    min-height: 0;
+    padding: 32px 32px 28px;
+    color: var(--white, #ffffff);
+}
+
+/* La imagen ya trae su propio marco oscuro (la tele); se le da aire con un halo tenue. */
+.disconnect-modal-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: min(46dvh, 320px);
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.9);
+}
+
+.disconnect-modal-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    text-align: center;
+}
+
+.disconnect-modal-title {
+    margin: 0;
+    font-family: var(--brand, system-ui, sans-serif);
+    font-size: 28px;
+    line-height: 1.1;
+}
+
+.disconnect-modal-text {
+    margin: 0;
+    max-width: 40ch;
+    color: rgba(255, 255, 255, 0.56);
+    font-size: 14px;
+    line-height: 150%;
+}
+
+.disconnect-modal-accept {
+    margin-top: 4px;
+    padding: 10px 28px;
+    border: 0;
+    border-radius: 6px;
+    background: var(--blue, #0066ff);
+    color: var(--white, #ffffff);
+    font: inherit;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.disconnect-modal-accept:hover {
+    background: var(--blue-hover, #3485ff);
+}
+
+.disconnect-modal-accept:focus-visible {
+    outline: 2px solid var(--turquoise, #22c2fc);
+    outline-offset: 3px;
+}
+
+@media (max-width: 520px) {
+    .disconnect-modal-body {
+        gap: 20px;
+        padding: 24px 16px 20px;
+    }
+
+    .disconnect-modal-title {
+        font-size: 24px;
+    }
+}

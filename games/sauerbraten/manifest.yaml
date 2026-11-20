@@ -1,0 +1,22 @@
+id: sauerbraten
+version: "2020.12.27"
+kind: native
+command: ["/opt/game/run-game.sh"]
+workdir: /opt/game
+env:
+  SDL_VIDEODRIVER: x11
+  SDL_AUDIODRIVER: pulse
+  ALSOFT_DRIVERS: pulse
+  SDL_VIDEO_WINDOW_POS: "0,0"
+  SDL_VIDEO_CENTERED: "0"
+  # Xvfb sin WM: SDL descarta eventos de joystick si cree que la ventana no tiene foco.
+  SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS: "1"
+needs:
+  display: true
+  audio: true
+  gamepad: 0
+  keyboard: true
+  mouse: true
+  relativeMouse: true
+audio:
+  fallbackArgs: []

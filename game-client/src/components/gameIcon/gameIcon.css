@@ -1,0 +1,49 @@
+.game-icon {
+    --game-icon-size: 40px;
+
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: var(--game-icon-size);
+    height: var(--game-icon-size);
+}
+
+.game-icon--sm {
+    --game-icon-size: 28px;
+}
+
+.game-icon--md {
+    --game-icon-size: 40px;
+}
+
+.game-icon--lg {
+    --game-icon-size: 56px;
+}
+
+.game-icon-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    /* Sin marco: las imágenes con transparencia quedan sueltas; las opacas solo redondeadas. */
+    object-fit: contain;
+    border-radius: calc(var(--game-icon-size) * 0.24);
+    user-select: none;
+}
+
+.game-icon-fallback {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    border-radius: calc(var(--game-icon-size) * 0.24);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+    font-family: var(--base);
+    font-size: calc(var(--game-icon-size) * 0.45);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--white, #ffffff);
+}

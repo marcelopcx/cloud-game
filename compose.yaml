@@ -1,0 +1,96 @@
+# Despliegue en servidor Linux (host network para ICE/WebRTC UDP).
+# Cliente y estación son contenedores distintos; nginx hace TLS + proxy a :8090.
+#
+#   cp .env.example .env   # ICE_HOST_IPS, PUBLIC_HOST, GAME, …
+#   ./scripts/deploy.sh
+#
+# GPU NVIDIA (opcional): docker compose -f compose.yaml -f compose.gpu.yaml up -d
+#
+# Juegos: cualquier carpeta de games/ (supertuxkart, battleship, neverball…; ver games/README.md)
+name: cloudgame
+
+services:
+  runtime:
+    image: cloudgame/game-station-runtime:latest
+    build:
+      context: ./game-station
+      dockerfile: Dockerfile
+    entrypoint: ["/bin/true"]
+    restart: "no"
+    init: true
+
+  game-station:
+    image: cloudgame/game-station-${GAME:-supertuxkart}
+    pull_policy: never
+    build:
+      context: ./games/${GAME:-supertuxkart}
+      pull: false
+      additional_contexts:
+        "cloudgame/game-station-runtime:latest": "service:runtime"
+      args:
+        RUNTIME_IMAGE: cloudgame/game-station-runtime:latest
+    network_mode: host
+    environment:
+      STATION_ID: ${STATION_ID:-station-1}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://127.0.0.1:5173,https://localhost}
+      ICE_HOST_POLICY: ${ICE_HOST_POLICY:-public}
+      ICE_HOST_IPS: ${ICE_HOST_IPS:-}
+      ICE_SERVERS: ${ICE_SERVERS:-stun:stun.l.google.com:19302}
+      STATION_DISPLAY: ${STATION_DISPLAY:-:99}
+      STATION_SIZE: ${STATION_SIZE:-1280x720}
+      STATION_STREAM_SIZE: ${STATION_STREAM_SIZE:-}
+      STATION_STREAM_SCALER: ${STATION_STREAM_SCALER:-bicubic}
+      STATION_FPS: ${STATION_FPS:-60}
+      STATION_VIDEO_BITRATE: ${STATION_VIDEO_BITRATE:-5000000}
+      LIBRARY_ROOT: /opt/station-library
+      CACHE_ROOT: /cache
+      IDLE_TIMEOUT_S: ${IDLE_TIMEOUT_S:-300}
+    devices:
+      - /dev/uinput
+    volumes:
+      - /dev/input:/dev/input
+      - station-cache:/cache
+    device_cgroup_rules:
+      - "c 13:* rmw"
+    depends_on:
+      runtime:
+        condition: service_completed_successfully
+    init: true
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -fsS http://127.0.0.1:$${STATION_HTTP_PORT:-8090}/health",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 24
+      start_period: 40s
+
+  game-client:
+    build:
+      context: ./game-client
+      args:
+        VITE_STATION_URL: /station
+        VITE_ICE_SERVERS: ${ICE_SERVERS:-stun:stun.l.google.com:19302}
+        VITE_GAME_ID: ${GAME:-supertuxkart}
+    image: cloudgame/game-client:latest
+    network_mode: host
+    environment:
+      STATION_UPSTREAM: http://127.0.0.1:8090
+      NGINX_ENVSUBST_FILTER: STATION_UPSTREAM|DISPATCHER_UPSTREAM
+      PUBLIC_HOST: ${PUBLIC_HOST:-localhost}
+      TLS_CERT: ${TLS_CERT:-self}
+      ACME_EMAIL: ${ACME_EMAIL:-}
+    volumes:
+      # Cuenta y certs de Let's Encrypt (TLS_CERT=acme); sobrevive a recrear el contenedor.
+      - ./.acme:/etc/nginx/acme
+    depends_on:
+      game-station:
+        condition: service_healthy
+    init: true
+    restart: unless-stopped
+
+volumes:
+  station-cache:

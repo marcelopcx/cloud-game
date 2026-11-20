@@ -1,0 +1,202 @@
+# Game Loader + Game Dispatcher: el dispatcher reparte estaciones (contenedores)
+# por partida, las reutiliza al salir, mantiene el mínimo por juego (minContainers
+# del catálogo) y le pide al loader las que faltan. Reemplaza a compose.yaml / deploy-all.sh (usa los mismos
+# puertos del cliente 443/5173, así que no levantar ambos a la vez).
+#
+#   ./scripts/deploy-loader.sh                     # todo en un paso (recomendado)
+#
+# A mano:
+#   ./scripts/build-station.sh supertuxkart        # una vez por juego
+#   docker compose -f compose.loader.yaml up -d --build
+#
+# Guías: docs/game-loader/README.md, docs/game-dispatcher/README.md
+name: cloudgame-loader
+
+services:
+  game-loader:
+    build: ./game-loader
+    image: cloudgame/game-loader:latest
+    network_mode: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      LOADER_API_TOKEN: ${LOADER_API_TOKEN:?definí LOADER_API_TOKEN}
+      LOADER_PUBLIC_HOST: ${PUBLIC_HOST:-127.0.0.1}
+      LOADER_MAX_CONTAINERS: ${LOADER_MAX_CONTAINERS:-4}
+      LOADER_GPU: ${LOADER_GPU:-false}
+      LOADER_UINPUT: ${LOADER_UINPUT:-true}
+      ICE_HOST_IPS: ${ICE_HOST_IPS:?definí ICE_HOST_IPS}
+      ICE_HOST_POLICY: ${ICE_HOST_POLICY:-public}
+      ICE_SERVERS: ${ICE_SERVERS:-stun:stun.l.google.com:19302}
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://localhost}
+      STATION_FPS: ${STATION_FPS:-60}
+      STATION_VIDEO_BITRATE: ${STATION_VIDEO_BITRATE:-5000000}
+      IDLE_TIMEOUT_S: ${IDLE_TIMEOUT_S:-300}
+    init: true
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8095'"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  # Único que habla con el loader. API pública /sessions (vía nginx en /dispatcher/) y
+  # admin /stations, /pool con DISPATCHER_API_TOKEN. Escucha en loopback.
+  game-dispatcher:
+    build: ./game-dispatcher
+    image: cloudgame/game-dispatcher:latest
+    network_mode: host
+    environment:
+      SERVER_ADDRESS: 127.0.0.1
+      LOADER_URL: http://127.0.0.1:8095
+      LOADER_API_TOKEN: ${LOADER_API_TOKEN}
+      CRUD_URL: http://127.0.0.1:8096
+      DISPATCHER_API_TOKEN: ${DISPATCHER_API_TOKEN:?definí DISPATCHER_API_TOKEN}
+      DISPATCHER_STATIONS_URL: /ports
+      DISPATCHER_WARM_POOL: ${DISPATCHER_WARM_POOL:-true}
+      # Tokens de jugador (los firma game-crud) y permisos de save; las estaciones suben a game-crud.
+      CLOUDGAME_JWT_SECRET: ${CLOUDGAME_JWT_SECRET:-}
+      DISPATCHER_SAVES_URL: http://127.0.0.1:8096
+      DISPATCHER_INACTIVITY_TIMEOUT_S: ${DISPATCHER_INACTIVITY_TIMEOUT_S:-300}
+      DISPATCHER_FREE_TTL_S: ${DISPATCHER_FREE_TTL_S:-600}
+      DISPATCHER_CLAIM_TIMEOUT_S: ${DISPATCHER_CLAIM_TIMEOUT_S:-60}
+      DISPATCHER_DISCONNECT_GRACE_S: ${DISPATCHER_DISCONNECT_GRACE_S:-30}
+    depends_on:
+      game-loader:
+        condition: service_healthy
+      game-crud:
+        condition: service_healthy
+    init: true
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8094'"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  game-client:
+    build:
+      context: ./game-client
+      args:
+        VITE_DISPATCHER_URL: /dispatcher
+        VITE_ICE_SERVERS: ${ICE_SERVERS:-stun:stun.l.google.com:19302}
+    image: cloudgame/game-client:loader
+    network_mode: host
+    environment:
+      DISPATCHER_UPSTREAM: http://127.0.0.1:8094
+      PUBLIC_HOST: ${PUBLIC_HOST:-localhost}
+      TLS_CERT: ${TLS_CERT:-self}
+      ACME_EMAIL: ${ACME_EMAIL:-}
+      ADMIN_UPSTREAM: http://127.0.0.1:8097
+      DOCS_UPSTREAM: http://127.0.0.1:8098
+      DOCS_SITE_UPSTREAM: http://127.0.0.1:8099
+      CRUD_UPSTREAM: http://127.0.0.1:8096
+    volumes:
+      # Cuenta y certs de Let's Encrypt (TLS_CERT=acme); sobrevive a recrear el contenedor.
+      - ./.acme:/etc/nginx/acme
+    depends_on:
+      game-dispatcher:
+        condition: service_healthy
+    init: true
+    restart: unless-stopped
+
+  # Catálogo de juegos (game-crud + game-admin). Base solo en loopback; el esquema
+  # (game-crud/schemas) se aplica al crear el volumen por primera vez.
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${DB_NAME:-cloud_game}
+      POSTGRES_USER: ${DB_USER:-cloudgame}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?definí DB_PASSWORD}
+    ports:
+      - "127.0.0.1:${DB_PORT:-5433}:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./game-crud/schemas:/docker-entrypoint-initdb.d:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  game-crud:
+    build: ./game-crud
+    image: cloudgame/game-crud:latest
+    network_mode: host
+    environment:
+      SERVER_ADDRESS: 127.0.0.1
+      DB_HOST: 127.0.0.1
+      DB_PORT: ${DB_PORT:-5433}
+      DB_NAME: ${DB_NAME:-cloud_game}
+      DB_USER: ${DB_USER:-cloudgame}
+      DB_PASSWORD: ${DB_PASSWORD}
+      # /v3/api-docs solo en loopback; se ve con Scalar en /api-docs/ (login del admin).
+      API_DOCS_ENABLED: "true"
+      # Primer administrador del panel, solo si la tabla ADMIN está vacía; los demás se crean en /admin/.
+      ADMIN_USER: ${ADMIN_USER:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      # Sesión de jugadores (POST /auth/login) y saves (/saves, solo loopback: lo usan las estaciones).
+      CLOUDGAME_JWT_SECRET: ${CLOUDGAME_JWT_SECRET:-}
+      SAVES_ROOT: /var/lib/cloudgame/saves
+      SAVES_MAX_MB: ${SAVES_MAX_MB:-256}
+      # Imágenes del catálogo (subidas desde /admin/), servidas en /media/.
+      IMAGES_ROOT: /var/lib/cloudgame/images
+      IMAGES_MAX_MB: ${IMAGES_MAX_MB:-25}
+      # Amigos jugando (GET /friends/playing): el estado de partida lo sabe el dispatcher, no la base.
+      DISPATCHER_URL: http://127.0.0.1:8094
+      DISPATCHER_API_TOKEN: ${DISPATCHER_API_TOKEN}
+    volumes:
+      - player-saves:/var/lib/cloudgame/saves
+      - catalog-images:/var/lib/cloudgame/images
+    depends_on:
+      db:
+        condition: service_healthy
+    init: true
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/8096'"]
+      interval: 5s
+      timeout: 3s
+      retries: 24
+
+  # Panel en https://<host>/admin/ (el nginx de game-client valida el login contra ADMIN de game-crud).
+  game-admin:
+    build: ./game-admin
+    image: cloudgame/game-admin:latest
+    network_mode: host
+    depends_on:
+      game-crud:
+        condition: service_healthy
+    init: true
+    restart: unless-stopped
+
+  # Documentación Scalar (dispatcher, loader, estación, crud) en https://<host>/api-docs/, con
+  # el mismo basic auth que /admin/. Su nginx agrega los Bearer del loader y del dispatcher al "Probar".
+  game-api:
+    build: ./game-api
+    image: cloudgame/game-api:latest
+    network_mode: host
+    environment:
+      LOADER_API_TOKEN: ${LOADER_API_TOKEN}
+      DISPATCHER_API_TOKEN: ${DISPATCHER_API_TOKEN}
+    init: true
+    restart: unless-stopped
+
+  # Documentación del proyecto (Astro Starlight) en https://<host>/docs/, con el mismo basic
+  # auth que /admin/. Se construye desde la raíz: el contenido sale de docs/ y los README.
+  game-docs:
+    build:
+      context: .
+      dockerfile: game-docs/Dockerfile
+    image: cloudgame/game-docs:latest
+    network_mode: host
+    init: true
+    restart: unless-stopped
+
+volumes:
+  db-data:
+  # Saves de jugadores con sesión (SAVES_ROOT de game-crud): <userId>/<gameId>.tar.gz
+  player-saves:
+  # Imágenes del catálogo (IMAGES_ROOT de game-crud): games/<idJuego>/<tipo>-<hash>.<ext>
+  catalog-images:

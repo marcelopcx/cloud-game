@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<stkconfig version="8" encoding="utf-8">
+    <!-- Cloud: sin popup de internet ni vsync (captura WebRTC). -->
+    <enable_internet value="2" />
+    <enable_vsync value="false" />
+    <fullscreen value="true" />
+    <sfx_on value="true" />
+    <music_on value="true" />
+    <sfx_volume value="1.0" />
+    <music_volume value="0.6" />
+    <showed-tutorial value="true" />
+</stkconfig>

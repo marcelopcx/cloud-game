@@ -1,0 +1,206 @@
+.station-stage {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    container-type: size;
+    display: grid;
+    place-items: center;
+}
+
+.game-view {
+    position: relative;
+    width: 100%;
+    max-height: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.game-view > audio {
+    display: none;
+}
+
+@supports (container-type: size) {
+    .station-stage {
+        container-type: size;
+    }
+
+    .game-view {
+        width: min(100cqw, calc(100cqh * 16 / 9));
+        height: min(100cqh, calc(100cqw * 9 / 16));
+        max-height: none;
+        aspect-ratio: auto;
+    }
+
+}
+
+.game-view video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000;
+    cursor: pointer;
+    z-index: 0;
+    color-scheme: only light;
+    outline: none;
+}
+
+.game-view.has-track.is-idle:not(.has-mouse),
+.game-view.has-track.is-idle:not(.has-mouse) video {
+    cursor: none;
+}
+
+.game-view.has-track.has-mouse video {
+    cursor: crosshair;
+}
+
+.game-view.has-mouse video::-webkit-media-controls {
+    display: none !important;
+}
+
+.game-view.has-track.is-locked,
+.game-view.has-track.is-locked video {
+    cursor: none;
+}
+
+.game-view:fullscreen,
+.game-view:-webkit-full-screen {
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    border-radius: 0;
+    aspect-ratio: auto;
+    align-self: stretch;
+}
+
+.game-view__placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #475569;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.game-view__hint {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 56px;
+    z-index: 1;
+    margin: 0;
+    pointer-events: none;
+    color: #cbd5e1;
+    font-size: 12px;
+    text-align: center;
+    text-shadow: 0 1px 4px #000;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.game-view__unmute {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 3;
+    transform: translate(-50%, -50%);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 999px;
+    background: rgba(8, 8, 14, 0.82);
+    color: #e2e8f0;
+    font-size: 13px;
+    padding: 10px 16px;
+    cursor: pointer;
+}
+
+.game-view__unmute:hover {
+    background: rgba(15, 23, 42, 0.92);
+}
+
+.game-view__banner {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.game-view__bar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 14px 12px 12px;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.72));
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(6px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.game-view.is-controls .game-view__bar {
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+}
+
+.game-view__actions {
+    min-width: 0;
+    flex: 1;
+}
+
+.game-view__fs {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    background: rgba(15, 15, 22, 0.72);
+    color: #f8fafc;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+}
+
+.game-view__fs:hover {
+    border-color: rgba(56, 189, 248, 0.7);
+    color: #fff;
+}
+
+.game-view__fs.is-on {
+    border-color: rgba(56, 189, 248, 0.7);
+    color: #7dd3fc;
+}
+
+@media (max-width: 900px) {
+    .station-stage {
+        container-type: normal;
+        display: block;
+        flex: none;
+    }
+
+    .game-view {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16 / 9;
+    }
+}

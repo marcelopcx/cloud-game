@@ -1,0 +1,111 @@
+.avatars-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.avatars-grid[aria-busy="true"] {
+    min-height: 200px;
+}
+
+.avatars-grid__card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 20px 14px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    text-align: center;
+}
+
+.avatars-grid__img {
+    width: 112px;
+    height: 112px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--surface-2);
+}
+
+.avatars-grid__card--inactive .avatars-grid__img {
+    filter: grayscale(1);
+    opacity: 0.55;
+}
+
+.avatars-grid__card strong {
+    max-width: 100%;
+    overflow: hidden;
+    color: var(--text-h);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.avatars-grid__badge {
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--surface-2);
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.avatars-grid__badge--active {
+    background: var(--success-bg);
+    color: var(--success);
+}
+
+.avatars-grid__actions {
+    display: flex;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.avatar-form__image {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.avatar-form__preview {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 88px;
+    height: 88px;
+    overflow: hidden;
+    border: 1px dashed var(--border-strong);
+    border-radius: 50%;
+    background: var(--surface-2);
+    color: var(--text-muted);
+}
+
+.avatar-form__preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-form__pick {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+}
+
+.admin-form label.avatar-form__check {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.admin-form .avatar-form__check input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+}

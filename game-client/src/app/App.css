@@ -1,0 +1,10 @@
+.app-container {
+    min-height: 100svh;
+    width: 100%;
+    background: var(--bg-dark, #0c0c12);
+    color: #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: left;
+}

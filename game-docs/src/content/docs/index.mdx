@@ -1,0 +1,97 @@
+---
+title: Cloud Game
+description: Documentación técnica de la plataforma de cloud gaming de Cloud Game.
+template: splash
+tableOfContents: false
+editUrl: false
+hero:
+  title: Documentación de Cloud Game
+  tagline: Juegos Linux ejecutados en servidor y jugados desde el navegador por WebRTC. Arquitectura, módulos, APIs y despliegue en un solo lugar.
+  image:
+    dark: ../../assets/hero-pad-dark.svg
+    light: ../../assets/hero-pad-light.svg
+    alt: Mando de Cloud Game
+  actions:
+    - text: Empezar
+      link: /docs/introduccion/
+      icon: right-arrow
+      variant: primary
+    - text: Arquitectura
+      link: /docs/arquitectura/
+      variant: secondary
+    - text: Referencia de APIs
+      link: /api-docs/
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+## Cómo funciona
+
+<CardGrid>
+  <Card title="1 · Reservar" icon="rocket">
+    Al darle **Jugar**, el **Game Loader** crea un contenedor de estación para ese juego y lo
+    destruye al salir.
+  </Card>
+  <Card title="2 · Ejecutar" icon="laptop">
+    La **Game Station** prepara los assets y lanza el juego en un display virtual (Xvfb) dentro
+    del contenedor.
+  </Card>
+  <Card title="3 · Transmitir" icon="seti:video">
+    Video y audio viajan al navegador por **WebRTC** (RTP/SRTP sobre UDP).
+  </Card>
+  <Card title="4 · Jugar" icon="puzzle">
+    Gamepad, teclado y mouse vuelven por un **DataChannel** y se inyectan con `uinput` y XTEST.
+  </Card>
+</CardGrid>
+
+## Módulos
+
+<CardGrid>
+  <LinkCard
+    title="Game Station"
+    description="Runtime Java: prepara, lanza, captura, negocia WebRTC e inyecta input."
+    href="/docs/game-station/"
+  />
+  <LinkCard
+    title="Game Loader"
+    description="Crea, lista y destruye contenedores de estación vía docker.sock."
+    href="/docs/game-loader/"
+  />
+  <LinkCard
+    title="Game Client"
+    description="SPA React del jugador: catálogo, player de video, HUD de input."
+    href="/docs/game-client/"
+  />
+  <LinkCard
+    title="Game Crud"
+    description="API del catálogo de juegos sobre PostgreSQL."
+    href="/docs/game-crud/"
+  />
+  <LinkCard
+    title="Game Admin"
+    description="Panel para dar de alta, editar y borrar juegos del catálogo."
+    href="/docs/game-admin/"
+  />
+  <LinkCard
+    title="Juegos"
+    description="Los 22 títulos, sus imágenes Docker y cómo agregar uno nuevo."
+    href="/docs/juegos/"
+  />
+</CardGrid>
+
+## Operación
+
+<CardGrid>
+  <LinkCard
+    title="Despliegue"
+    description="Servidor Linux, .env, Compose, TLS, CI/CD, GPU, uinput y firewall."
+    href="/docs/despliegue/"
+  />
+  <LinkCard
+    title="Referencia de APIs (Scalar)"
+    description="Todos los endpoints de loader, estación y catálogo, con “Probar”."
+    href="/api-docs/"
+  />
+</CardGrid>
